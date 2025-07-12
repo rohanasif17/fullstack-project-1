@@ -5,15 +5,5 @@ const registerUser = asyncHandler( async (req, res)=>{
         message : 'ok'
     })
 })
-const loginUser = asyncHandler(async (req, res) =>{
-    res.status(200).json({
-        message: "An error occured!",
-    })
-})
-const signupUser = asyncHandler( async (req,res)=>{
-    res.status(200).json({
-        message : 'Enter Your Email'
-    })
-})
 
-export {registerUser, loginUser, signupUser}
+export {registerUser}
