@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
+import React, {use, useState} from 'react'
+import api from '../services/api'
 
-export default function Login() {
+const loginForm = () => {
   const [formData, setFormData] = useState({ identifier: '', password: '' });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
-  const handleSubmit = (e) => {
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add your login logic here
-    console.log('Logging in with', formData);
+
+    const isEmail = formData.identifier.includes('@');
+    const payload = {
+      [isEmail ? 'email' : 'username']: formData.identifier,
+      password: formData.password
+    };
+  
+    try {
+      const res = await api.post('/users/login', payload);
+      console.log('User:', res.data.data.user);
+    } catch (error) {
+      console.log(error.response?.data?.message || 'Login failed');
+    }
   };
 
   return (
@@ -44,7 +56,6 @@ export default function Login() {
     </div>
   );
 }
-
 const styles = {
   wrapper: {
     height: '100vh',
@@ -97,3 +108,6 @@ const styles = {
     textDecoration: 'none'
   }
 };
+
+
+export default loginForm
