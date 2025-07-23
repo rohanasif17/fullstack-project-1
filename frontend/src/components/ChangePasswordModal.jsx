@@ -99,7 +99,7 @@ const ChangePasswordModal = () => {
       </Button>
 
       <Modal show={show} onHide={handleClose} centered>
-        <Modal.Header closeButton style={{ backgroundColor: '#1e1e1e', borderBottom: 'none' }}>
+        <Modal.Header closeButton closeVariant="white" style={{ backgroundColor: '#1e1e1e', borderBottom: 'none' }}>
           <Modal.Title style={{ color: '#fff' }}>Set New Password</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ backgroundColor: '#1e1e1e', color: '#fff' }}>

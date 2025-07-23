@@ -9,6 +9,8 @@ import VideosPage from './pages/VideosPage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ChangePasswordModal from './components/ChangePasswordModal';
 import UpdateDetailsModal from './components/UpdateDetailsModal';
+import ChangeAvatarModal from './components/ChangeAvatarModal';
+import ChangeCoverImageModal from './components/ChangeCoverImageModal';
 
 // Component to verify authentication status on app load
 const AuthVerifier = ({ onDone, setIsAuthenticated }) => {
@@ -65,6 +67,8 @@ function App() {
           <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 1050, display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <ChangePasswordModal />
             <UpdateDetailsModal />
+            <ChangeAvatarModal />
+            <ChangeCoverImageModal />
           </div>
         )}
       </Router>
