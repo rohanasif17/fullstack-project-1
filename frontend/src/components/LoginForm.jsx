@@ -1,12 +1,26 @@
-import React, {use, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import api from '../services/api'
+import ErrorMessage from './ErrorMessage';
 
 const loginForm = () => {
   const [formData, setFormData] = useState({ identifier: '', password: '' });
+  const [errorMsg, setErrorMsg] = useState('')
+  const [showError, setShowError] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  
+  useEffect(() => {
+    if (showError) {
+      const timer = setTimeout(() => {
+        setShowError(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showError]);
+
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +35,8 @@ const loginForm = () => {
       const res = await api.post('/users/login', payload);
       console.log('User:', res.data.data.user);
     } catch (error) {
-      console.log(error.response?.data?.message || 'Login failed');
+      setErrorMsg('Invalid credentials. Please try again.');
+      setShowError(true)
     }
   };
 
@@ -40,26 +55,53 @@ const loginForm = () => {
             required
             style={styles.input}
           />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            style={styles.input}
-          />
+          {/* Password input with show/hide button in a row */}
+          <div style={{ position: 'relative', marginBottom: '0.75rem' }}>
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              style={{ ...styles.input, paddingRight: '60px', marginBottom: 0 }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                color: '#ccc',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                cursor: 'pointer',
+                padding: 0,
+              }}
+              tabIndex={-1}
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
           <button type="submit" style={styles.button}>Login</button>
         </form>
         <p style={styles.linkText}>Don't have an account? <a href="/register" style={styles.link}>Register</a></p>
+        <ErrorMessage message={errorMsg} visible={showError} />
       </div>
     </div>
   );
 }
+
+
 const styles = {
   wrapper: {
     height: '100vh',
     display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#111'
@@ -92,11 +134,13 @@ const styles = {
   button: {
     width: '100%',
     padding: '0.5rem',
-    backgroundColor: '#00bfff',
-    border: 'none',
+    backgroundColor: '#fff',
+    border: '2px solid #111',
     borderRadius: '4px',
-    color: 'white',
-    cursor: 'pointer'
+    color: '#111',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    transition: 'background 0.2s, box-shadow 0.2s, color 0.2s',
   },
   linkText: {
     textAlign: 'center',
@@ -104,8 +148,12 @@ const styles = {
     fontSize: '14px'
   },
   link: {
-    color: '#00bfff',
-    textDecoration: 'none'
+    color: '#fff',
+    textDecoration: 'none',
+    borderBottom: '1px solid #fff',
+    fontWeight: 'bold',
+    paddingBottom: '2px',
+    transition: 'color 0.2s',
   }
 };
 
