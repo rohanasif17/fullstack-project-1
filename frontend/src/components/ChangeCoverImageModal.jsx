@@ -75,11 +75,7 @@ const ChangeCoverImageModal = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedFile) {
-      setErrorMsg('Please select an image to upload.');
-      setShowError(true);
-      return;
-    }
+
     try {
       const formData = new FormData();
       formData.append('coverImage', selectedFile);
@@ -94,7 +90,7 @@ const ChangeCoverImageModal = () => {
       }, 1500);
     } catch (err) {
       const message =
-        err?.response?.data?.message || 'Failed to update cover image. Please try again.';
+        err?.message || 'Failed to update cover image. Please try again.';
       setErrorMsg(message);
       setShowError(true);
     }
