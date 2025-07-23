@@ -41,7 +41,7 @@ const ErrorMessage = ({ message = '', visible = false, onHide }) => {
 
   return (
     <div style={style}>
-      <Alert variant='danger' style={{ backgroundColor: '#2c0b0e', color: '#fff', marginBottom: 0 }}>
+      <Alert variant='danger' style={{ backgroundColor: '#2c0b0e', color: '#ea868e', marginBottom: 0 }}>
         {message}
       </Alert>
     </div>

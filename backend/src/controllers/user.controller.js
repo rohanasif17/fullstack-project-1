@@ -250,6 +250,20 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
         throw new ApiError(400, "Username cannot contain spaces")
     }
 
+    // Validate email format if email is provided
+    if (email && email.trim() !== "") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            throw new ApiError(400, "Please provide a valid email address")
+        }
+
+        // Check if the new email already exists for a different user
+        const existingUserWithEmail = await User.findOne({ email });
+        if (existingUserWithEmail && existingUserWithEmail._id.toString() !== req.user._id.toString()) {
+            throw new ApiError(409, "A user with this email already exists")
+        }
+    }
+
     // Build update object dynamically
     const updateData = {};
     if (fullName && fullName.trim() !== "") updateData.fullName = fullName;

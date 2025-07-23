@@ -4,9 +4,9 @@
     box-sizing: border-box;
   }
   
-  html, body {
+  html, body, #root {
     width: 100%;
     height: 100%;
     overflow: hidden; /* disables scrollbars */
-    background-color: #111; /* matches your theme */
+    background-color: #0f0f0f !important; /* theme background */
   }

@@ -1,9 +1,11 @@
 import React, {useEffect, useState} from 'react'
 import api from '../services/api'
+import { useNavigate } from 'react-router-dom';
 import ErrorMessage from './ErrorMessage';
 
-const loginForm = () => {
+const LoginForm = () => {
   const [formData, setFormData] = useState({ identifier: '', password: '' });
+  const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState('')
   const [showError, setShowError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -32,8 +34,8 @@ const loginForm = () => {
     };
   
     try {
-      const res = await api.post('/users/login', payload);
-      console.log('User:', res.data.data.user);
+      await api.post('/users/login', payload);
+      navigate('/homepage');
     } catch (error) {
       setErrorMsg('Invalid credentials. Please try again.');
       setShowError(true)
@@ -158,4 +160,4 @@ const styles = {
 };
 
 
-export default loginForm
+export default LoginForm

@@ -55,6 +55,25 @@ const getAllVideos = asyncHandler(async (req, res) => {
         }
     });
 
+    // Added lookup to populate owner details as an array (avatar, fullName, username)
+    pipeline.push({
+        $lookup: {
+            from: "users",
+            localField: "owner",
+            foreignField: "_id",
+            as: "owner",
+            pipeline: [
+                {
+                    $project: {
+                        username: 1,
+                        fullName: 1,
+                        "avatar.url": 1
+                    }
+                }
+            ]
+        }
+    });
+
     pipeline.push({ $sort: { createdAt: -1 } });
 
     const videoAggregate = Video.aggregate(pipeline);
@@ -82,8 +101,9 @@ const publishAVideo = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid category");
     }
 
-    const videoFileLocalPath = req.files?.videoFile[0]?.path;
-    const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
+    // Use optional chaining for array indexing as well to avoid errors when files are missing
+    const videoFileLocalPath = req.files?.videoFile?.[0]?.path;
+    const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path;
 
     if (!videoFileLocalPath) {
         throw new ApiError(400, "Video file is required");
@@ -163,6 +183,7 @@ const getVideoById = asyncHandler(async (req, res) => {
                     {
                         $project: {
                             username: 1,
+                            fullName: 1,
                             "avatar.url": 1,
                         },
                     },
@@ -174,9 +195,7 @@ const getVideoById = asyncHandler(async (req, res) => {
                 likesCount: {
                     $size: "$likes",
                 },
-                owner: {
-                    $first: "$owner",
-                },
+                // Removed owner flattening to keep it as an array
                 isLiked: {
                     $cond: {
                         if: {
