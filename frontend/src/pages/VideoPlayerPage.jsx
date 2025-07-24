@@ -371,7 +371,8 @@ const VideoPlayerPage = () => {
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             placeholder="Add a comment..."
-            style={styles.commentInput}
+            style={{ ...styles.commentInput, backgroundColor: 'transparent', border: 'none', outline: 'none' }}
+            onKeyDown={e => { if (e.key === 'Enter') handleAddComment(); }}
           />
           <button onClick={handleAddComment} style={styles.commentPostBtn}>Post</button>
         </div>
@@ -385,6 +386,7 @@ const VideoPlayerPage = () => {
           currentUser={currentUser}
           onUpdateComment={handleUpdateComment}
           onDeleteComment={handleDeleteComment}
+          getTimeAgo={getTimeAgo}
         />
       ))}
     </div>

@@ -6,8 +6,7 @@ import api, { getCurrentUser } from '../services/api';
 import ErrorMessage from './ErrorMessage';
 import SuccessMessage from './SuccessMessage';
 
-const UpdateDetailsModal = () => {
-  const [show, setShow] = useState(false);
+const UpdateDetailsModal = ({ show, onHide }) => {
   const [formData, setFormData] = useState({
     fullName: '',
     username: '',
@@ -21,12 +20,12 @@ const UpdateDetailsModal = () => {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleClose = () => {
-    setShow(false);
     // Reset transient UI state but keep latest form values on close
     setErrorMsg('');
     setShowError(false);
     setSuccessMsg('');
     setShowSuccess(false);
+    if (onHide) onHide();
   };
 
   const populateUserDetails = async () => {
@@ -89,21 +88,6 @@ const UpdateDetailsModal = () => {
 
   return (
     <>
-      <Button
-        onClick={handleShow}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{
-          backgroundColor: isHovered ? '#111' : '#fff',
-          color: isHovered ? '#fff' : '#111',
-          border: isHovered ? '3px solid #fff' : '2px solid #111',
-          fontWeight: 'bold',
-          transition: 'background 0.2s, color 0.2s',
-        }}
-      >
-        Edit Details
-      </Button>
-
       <Modal show={show} onHide={handleClose} centered>
         <Modal.Header closeButton closeVariant="white" style={{ backgroundColor: '#1e1e1e', borderBottom: 'none' }}>
           <Modal.Title style={{ color: '#fff' }}>Update Account Details</Modal.Title>

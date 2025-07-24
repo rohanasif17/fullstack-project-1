@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import ErrorMessage from './ErrorMessage';
+import { useNavigate } from 'react-router-dom';
 
-const RegisterForm = () => {
+const RegisterForm = ({ setIsAuthenticated }) => {
   const [formData, setFormData] = useState({
     fullName: '',
     username: '',
@@ -15,6 +16,7 @@ const RegisterForm = () => {
   const [showError, setShowError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -69,8 +71,19 @@ const RegisterForm = () => {
       await api.post('/users/register', data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      // Optionally redirect or show success
-      // window.location.href = '/login';
+      // Auto-login after successful registration
+      try {
+        await api.post('/users/login', {
+          email: formData.email,
+          password: formData.password
+        });
+        if (setIsAuthenticated) setIsAuthenticated(true);
+        navigate('/homepage');
+      } catch (loginError) {
+        setErrorMsg('Registration succeeded, but auto-login failed. Please log in manually.');
+        setShowError(true);
+        // Optionally, navigate('/login');
+      }
     } catch (error) {
       setErrorMsg(
         error?.response?.data?.message || 'Registration failed. Please try again.'

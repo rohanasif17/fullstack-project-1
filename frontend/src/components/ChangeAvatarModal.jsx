@@ -7,8 +7,7 @@ import api, { getCurrentUser } from '../services/api';
 import ErrorMessage from './ErrorMessage';
 import SuccessMessage from './SuccessMessage';
 
-const ChangeAvatarModal = () => {
-  const [show, setShow] = useState(false);
+const ChangeAvatarModal = ({ show, onHide }) => {
   const [currentAvatar, setCurrentAvatar] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
@@ -20,14 +19,13 @@ const ChangeAvatarModal = () => {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleClose = () => {
-    setShow(false);
-    // Reset transient UI state but keep latest avatar on close
     setSelectedFile(null);
     setPreviewUrl('');
     setErrorMsg('');
     setShowError(false);
     setSuccessMsg('');
     setShowSuccess(false);
+    if (onHide) onHide();
   };
 
   const populateAvatar = async () => {
@@ -42,11 +40,6 @@ const ChangeAvatarModal = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleShow = () => {
-    setShow(true);
-    populateAvatar();
   };
 
   useEffect(() => {
@@ -102,21 +95,6 @@ const ChangeAvatarModal = () => {
 
   return (
     <>
-      <Button
-        onClick={handleShow}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{
-          backgroundColor: isHovered ? '#111' : '#fff',
-          color: isHovered ? '#fff' : '#111',
-          border: isHovered ? '3px solid #fff' : '2px solid #111',
-          fontWeight: 'bold',
-          transition: 'background 0.2s, color 0.2s',
-        }}
-      >
-        Change Avatar
-      </Button>
-
       <Modal show={show} onHide={handleClose} centered>
         <Modal.Header closeButton closeVariant="white" style={{ backgroundColor: '#1e1e1e', borderBottom: 'none' }}>
           <Modal.Title style={{ color: '#fff' }}>Update Avatar</Modal.Title>

@@ -6,8 +6,7 @@ import api from '../services/api';
 import ErrorMessage from './ErrorMessage';
 import SuccessMessage from './SuccessMessage';
 
-const ChangePasswordModal = () => {
-  const [show, setShow] = useState(false);
+const ChangePasswordModal = ({ show, onHide }) => {
   const [formData, setFormData] = useState({
     oldPassword: '',
     newPassword: '',
@@ -23,7 +22,6 @@ const ChangePasswordModal = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
 
   const handleClose = () => {
-    setShow(false);
     // reset states when modal closes
     setFormData({ oldPassword: '', newPassword: '' });
     setErrorMsg('');
@@ -32,6 +30,7 @@ const ChangePasswordModal = () => {
     setShowSuccess(false);
     setShowOldPassword(false);
     setShowNewPassword(false);
+    if (onHide) onHide();
   };
   const handleShow = () => setShow(true);
 
@@ -83,21 +82,6 @@ const ChangePasswordModal = () => {
 
   return (
     <>
-      <Button
-        onClick={handleShow}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{
-          backgroundColor: isHovered ? '#111' : '#fff',
-          color: isHovered ? '#fff' : '#111',
-          border: isHovered ? '3px solid #fff' : '2px solid #111',
-          fontWeight: 'bold',
-          transition: 'background 0.2s, color 0.2s',
-        }}
-      >
-        Change Password
-      </Button>
-
       <Modal show={show} onHide={handleClose} centered>
         <Modal.Header closeButton closeVariant="white" style={{ backgroundColor: '#1e1e1e', borderBottom: 'none' }}>
           <Modal.Title style={{ color: '#fff' }}>Set New Password</Modal.Title>

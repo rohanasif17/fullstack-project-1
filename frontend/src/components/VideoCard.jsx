@@ -51,31 +51,29 @@ const VideoCard = ({ video }) => {
 
   return (
     <Link to={`/v/${video._id}`} style={{ textDecoration: 'none' }} className="video-card" >
-      <div style={styles.card}>
-        <div style={styles.thumbnailWrapper}>
-          <img src={thumbnail} alt={title} style={styles.thumbnail} />
-
+      <div className="video-card-outer">
+        <div className="video-card-thumbnail-wrapper">
+          <img src={thumbnail} alt={title} className="video-card-thumbnail" />
           {/* Duration */}
           {duration !== undefined && (
-            <span style={styles.duration}>{formatDuration(duration)}</span>
+            <span className="video-card-duration">{formatDuration(duration)}</span>
           )}
         </div>
-
-        <div style={styles.infoSection}>
-          <div style={styles.title}>{title}</div>
-
-          <div style={styles.ownerRow}>
+        <div className="video-card-info">
+          <div className="video-card-row">
             <img
               src={owner[0]?.avatar?.url || avatarImageSample}
               alt={owner?.fullName || 'Avatar'}
-              style={styles.avatar}
+              className="video-card-avatar"
             />
-            <span style={styles.ownerName}>{owner[0]?.fullName || 'Unknown'}</span>
+            <div className="video-card-title">{title}</div>
           </div>
-
-          <div style={styles.statsRow}>
-            <div style={styles.stats}>{formatViews(views)} Views&nbsp;&bull;&nbsp;{timeAgo(createdAt)}</div>
-            {category && <div style={styles.category}>{category}</div>}
+          <div className="video-card-meta">
+            <span className="video-card-owner">{owner[0]?.fullName || 'Unknown'}</span>
+            <span className="video-card-dot">•</span>
+            <span className="video-card-views">{formatViews(views)} views</span>
+            <span className="video-card-dot">•</span>
+            <span className="video-card-time">{timeAgo(createdAt)}</span>
           </div>
         </div>
       </div>

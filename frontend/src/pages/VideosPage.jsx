@@ -1,13 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import VideoCard from '../components/VideoCard';
 import VideoCardSkeleton from '../components/VideoCardSkeleton';
 import { getVideos, getCurrentUser } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+
+const MIN_CARD_WIDTH = 260;
+const CARD_GAP = 24;
+const CARD_ASPECT_RATIO = 16 / 9;
+const CARD_INFO_HEIGHT = 80; // Approximate height for info section below thumbnail
 
 const VideosPage = () => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+  // Removed gridRef and skeletonCount state
+
+  // Removed dynamic skeleton count effect
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -34,6 +44,10 @@ const VideosPage = () => {
         if (userRes.status === 'fulfilled') {
           loggedInUser = userRes.value.data?.data || null;
           setCurrentUser(loggedInUser);
+        } else {
+          // If getCurrentUser failed, redirect to /
+          navigate('/', { replace: true });
+          return;
         }
 
         // If user is logged in, filter out their own videos
@@ -53,10 +67,10 @@ const VideosPage = () => {
     };
 
     fetchVideos();
-  }, []);
+  }, [navigate]);
 
   if (loading) {
-    // Show skeleton placeholders while videos are loading
+    // Show a fixed number of skeleton placeholders while videos are loading
     return (
       <div style={styles.gridContainer}>
         {Array.from({ length: 8 }).map((_, idx) => (

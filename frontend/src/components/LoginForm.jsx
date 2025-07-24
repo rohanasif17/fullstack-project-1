@@ -3,7 +3,7 @@ import api from '../services/api'
 import { useNavigate } from 'react-router-dom';
 import ErrorMessage from './ErrorMessage';
 
-const LoginForm = () => {
+const LoginForm = ({ setIsAuthenticated }) => {
   const [formData, setFormData] = useState({ identifier: '', password: '' });
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState('')
@@ -35,6 +35,7 @@ const LoginForm = () => {
   
     try {
       await api.post('/users/login', payload);
+      if (setIsAuthenticated) setIsAuthenticated(true);
       navigate('/homepage');
     } catch (error) {
       setErrorMsg('Invalid credentials. Please try again.');

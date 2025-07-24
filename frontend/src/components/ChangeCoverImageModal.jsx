@@ -10,8 +10,7 @@ import { coverImageSample } from '../../public/imageUrl';
 
 const DEFAULT_COVER =  coverImageSample;
 
-const ChangeCoverImageModal = () => {
-  const [show, setShow] = useState(false);
+const ChangeCoverImageModal = ({ show, onHide }) => {
   const [currentCover, setCurrentCover] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
@@ -23,13 +22,13 @@ const ChangeCoverImageModal = () => {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleClose = () => {
-    setShow(false);
     setSelectedFile(null);
     setPreviewUrl('');
     setErrorMsg('');
     setShowError(false);
     setSuccessMsg('');
     setShowSuccess(false);
+    if (onHide) onHide();
   };
 
   const populateCover = async () => {
@@ -44,11 +43,6 @@ const ChangeCoverImageModal = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleShow = () => {
-    setShow(true);
-    populateCover();
   };
 
   useEffect(() => {
@@ -100,21 +94,6 @@ const ChangeCoverImageModal = () => {
 
   return (
     <>
-      <Button
-        onClick={handleShow}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{
-          backgroundColor: isHovered ? '#111' : '#fff',
-          color: isHovered ? '#fff' : '#111',
-          border: isHovered ? '3px solid #fff' : '2px solid #111',
-          fontWeight: 'bold',
-          transition: 'background 0.2s, color 0.2s',
-        }}
-      >
-        Change Cover Image
-      </Button>
-
       <Modal show={show} onHide={handleClose} centered size="lg">
         <Modal.Header closeButton closeVariant="white" style={{ backgroundColor: '#1e1e1e', borderBottom: 'none' }}>
           <Modal.Title style={{ color: '#fff' }}>Update Cover Image</Modal.Title>

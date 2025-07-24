@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const CommentItem = ({ comment, index, onToggleLike, currentUser, onUpdateComment, onDeleteComment }) => {
+const CommentItem = ({ comment, index, onToggleLike, currentUser, onUpdateComment, onDeleteComment, getTimeAgo }) => {
   if (!comment) return null;
 
   const isOwner = currentUser?._id && comment?.owner?._id === currentUser._id;
@@ -12,6 +12,29 @@ const CommentItem = ({ comment, index, onToggleLike, currentUser, onUpdateCommen
   const [showConfirm, setShowConfirm] = useState(false);
 
   const menuRef = useRef(null);
+
+  // Add keyboard handlers for edit and delete
+  const editInputRef = useRef(null);
+  useEffect(() => {
+    if (editing && editInputRef.current) {
+      editInputRef.current.focus();
+    }
+  }, [editing]);
+
+  const handleEditKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      saveEdit();
+    } else if (e.key === 'Escape') {
+      cancelEdit();
+    }
+  };
+  const handleDeleteKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      confirmDelete();
+    } else if (e.key === 'Escape') {
+      setShowConfirm(false);
+    }
+  };
 
   // close dropdown when clicking outside
   useEffect(() => {
@@ -60,7 +83,7 @@ const CommentItem = ({ comment, index, onToggleLike, currentUser, onUpdateCommen
 
   return (
     <div
-      style={styles.commentRow}
+      style={{ ...styles.commentRow, backgroundColor: '#222', padding: 12, borderRadius: 6 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -70,14 +93,23 @@ const CommentItem = ({ comment, index, onToggleLike, currentUser, onUpdateCommen
         style={styles.commentAvatar}
       />
       <div style={styles.commentBody}>
-        <span style={styles.commentOwner}>{comment.owner?.username || 'User'}</span>
+        <span style={styles.commentOwner}>
+          {comment.owner?.username || 'User'}
+          {comment.createdAt && getTimeAgo && (
+            <span style={styles.commentTime}>
+              {' · ' + getTimeAgo(comment.createdAt)}
+            </span>
+          )}
+        </span>
 
         {editing ? (
           <>
             <input
+              ref={editInputRef}
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
               style={styles.editInput}
+              onKeyDown={handleEditKeyDown}
             />
             <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
               <button
@@ -117,7 +149,7 @@ const CommentItem = ({ comment, index, onToggleLike, currentUser, onUpdateCommen
       )}
 
       {showConfirm && (
-        <div style={styles.modalOverlay}>
+        <div style={styles.modalOverlay} tabIndex={0} onKeyDown={handleDeleteKeyDown}>
           <div style={styles.modalBox}>
             <p style={{ marginBottom: 16 }}>Are you sure you want to delete this comment?</p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
@@ -251,6 +283,12 @@ const styles = {
     color: '#fff',
     borderRadius: 4,
     cursor: 'pointer',
+  },
+  commentTime: {
+    fontWeight: 'normal',
+    color: '#aaa',
+    fontSize: 13,
+    marginLeft: 4,
   },
 };
 

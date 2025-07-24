@@ -36,3 +36,8 @@ export const addVideoView = (id) => api.post(`/videos/${id}/view`);
 export const getChannelSubscribers = (channelId) => api.get(`/subscriptions/c/${channelId}`);
 
 export const toggleChannelSubscription = (channelId) => api.post(`/subscriptions/c/${channelId}`);
+
+export const publishVideo = (formData) =>
+  api.post('/videos', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
