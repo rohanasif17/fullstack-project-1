@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './VideoCard.css';
 
 const VideoCard = ({ video }) => {
@@ -49,34 +50,36 @@ const VideoCard = ({ video }) => {
   };
 
   return (
-    <div className="video-card" style={styles.card}>
-      <div style={styles.thumbnailWrapper}>
-        <img src={thumbnail} alt={title} style={styles.thumbnail} />
+    <Link to={`/v/${video._id}`} style={{ textDecoration: 'none' }} className="video-card" >
+      <div style={styles.card}>
+        <div style={styles.thumbnailWrapper}>
+          <img src={thumbnail} alt={title} style={styles.thumbnail} />
 
-        {/* Duration */}
-        {duration !== undefined && (
-          <span style={styles.duration}>{formatDuration(duration)}</span>
-        )}
-      </div>
-
-      <div style={styles.infoSection}>
-        <div style={styles.title}>{title}</div>
-
-        <div style={styles.ownerRow}>
-          <img
-            src={owner[0]?.avatar?.url || avatarImageSample}
-            alt={owner?.fullName || 'Avatar'}
-            style={styles.avatar}
-          />
-          <span style={styles.ownerName}>{owner[0]?.fullName || 'Unknown'}</span>
+          {/* Duration */}
+          {duration !== undefined && (
+            <span style={styles.duration}>{formatDuration(duration)}</span>
+          )}
         </div>
 
-        <div style={styles.statsRow}>
-          <div style={styles.stats}>{formatViews(views)} Views&nbsp;&bull;&nbsp;{timeAgo(createdAt)}</div>
-          {category && <div style={styles.category}>{category}</div>}
+        <div style={styles.infoSection}>
+          <div style={styles.title}>{title}</div>
+
+          <div style={styles.ownerRow}>
+            <img
+              src={owner[0]?.avatar?.url || avatarImageSample}
+              alt={owner?.fullName || 'Avatar'}
+              style={styles.avatar}
+            />
+            <span style={styles.ownerName}>{owner[0]?.fullName || 'Unknown'}</span>
+          </div>
+
+          <div style={styles.statsRow}>
+            <div style={styles.stats}>{formatViews(views)} Views&nbsp;&bull;&nbsp;{timeAgo(createdAt)}</div>
+            {category && <div style={styles.category}>{category}</div>}
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

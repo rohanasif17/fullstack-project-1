@@ -1,20 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import VideoCard from '../components/VideoCard';
 import VideoCardSkeleton from '../components/VideoCardSkeleton';
-import { getVideos } from '../services/api';
+import { getVideos, getCurrentUser } from '../services/api';
 
 const VideosPage = () => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const res = await getVideos();
-        const data = res.data?.data;
-        // aggregatePaginate returns {docs: [], page, totalPages etc.}
-        const videoDocs = Array.isArray(data?.docs) ? data.docs : Array.isArray(data) ? data : [];
+        // Fetch videos and current user in parallel
+        const [videoRes, userRes] = await Promise.allSettled([
+          getVideos(),
+          getCurrentUser(),
+        ]);
+
+        // Extract videos
+        let videoDocs = [];
+        if (videoRes.status === 'fulfilled') {
+          const data = videoRes.value.data?.data;
+          videoDocs = Array.isArray(data?.docs)
+            ? data.docs
+            : Array.isArray(data)
+            ? data
+            : [];
+        }
+
+        // Extract user if available
+        let loggedInUser = null;
+        if (userRes.status === 'fulfilled') {
+          loggedInUser = userRes.value.data?.data || null;
+          setCurrentUser(loggedInUser);
+        }
+
+        // If user is logged in, filter out their own videos
+        if (loggedInUser?._id) {
+          videoDocs = videoDocs.filter(
+            (v) => v.owner?.[0]?._id !== loggedInUser._id
+          );
+        }
+
         setVideos(videoDocs);
       } catch (err) {
         const msg = err.response?.data?.message || 'Failed to fetch videos';

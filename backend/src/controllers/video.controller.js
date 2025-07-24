@@ -232,18 +232,8 @@ const getVideoById = asyncHandler(async (req, res) => {
     // Add video to the beginning of watch history
     user.watchHistory.unshift(videoId);
   
-    // Limit watch history to a certain number of videos (e.g., 20)
-    if (user.watchHistory.length > 20) {
-      user.watchHistory.pop();
-    }
-  
     await user.save({ validateBeforeSave: false });
-    if (video.isPublished && req.user?._id) {
-        await Video.findByIdAndUpdate(videoId, {
-            $inc: { views: 1 },
-        });
-        video.views += 1;
-    }
+    // View counting moved to a dedicated endpoint (POST /videos/:videoId/view)
 
     return res
         .status(200)
@@ -347,6 +337,52 @@ const deleteVideo = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, {}, "Video deleted successfully"));
 });
 
+// ----------------------------------------------------------------
+// Add View Controller
+// ----------------------------------------------------------------
+// Ensures a view is counted only when:
+// 1. The viewer is authenticated and NOT the owner of the video.
+// 2. The client explicitly calls this endpoint after either:
+//      a) Video ended (full watch), OR
+//      b) 30 seconds of playback have elapsed.
+// The client-side logic is responsible for determining when this endpoint
+// should be triggered.
+// ----------------------------------------------------------------
+
+const addView = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid videoId");
+    }
+
+    // Fetch only owner + views for minimal payload
+    const video = await Video.findById(videoId).select('owner views isPublished');
+
+    if (!video) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    if (!video.isPublished) {
+        throw new ApiError(403, "Cannot view an unpublished video");
+    }
+
+    // Do not count views from the owner themselves
+    if (video.owner.toString() === req.user?._id.toString()) {
+        return res.status(200).json(new ApiResponse(200, { views: video.views }, "Owner view ignored"));
+    }
+
+    const updatedVideo = await Video.findByIdAndUpdate(
+        videoId,
+        { $inc: { views: 1 } },
+        { new: true, select: 'views' }
+    );
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, { views: updatedVideo.views }, "View counted"));
+});
+
 const togglePublishStatus = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
 
@@ -387,6 +423,7 @@ export {
     getAllVideos,
     publishAVideo,
     getVideoById,
+    addView,
     updateVideo,
     deleteVideo,
     togglePublishStatus

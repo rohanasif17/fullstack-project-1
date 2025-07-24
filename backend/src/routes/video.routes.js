@@ -6,6 +6,7 @@ import {
     publishAVideo,
     togglePublishStatus,
     updateVideo,
+    addView,
 } from "../controllers/video.controller.js"
 import {verifyJWT} from "../middlewares/auth.middleware.js"
 import {upload} from "../middlewares/multer.middleware.js"
@@ -30,6 +31,10 @@ router
         ]),
         publishAVideo
     );
+
+router
+    .route("/:videoId/view")
+    .post(addView);
 
 router
     .route("/:videoId")
