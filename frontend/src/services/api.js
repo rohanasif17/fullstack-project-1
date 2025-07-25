@@ -51,3 +51,16 @@ export const updateTweet = (tweetId, content) => api.patch(`/tweets/${tweetId}`,
 export const deleteTweet = (tweetId) => api.delete(`/tweets/${tweetId}`);
 
 export const getLikedVideos = () => api.get('/likes/videos');
+
+export const getDashboardStats = () => api.get('/dashboard/stats');
+
+export const getUserSubscriptions = (subscriberId) => api.get(`/subscriptions/u/${subscriberId}`);
+
+// Fetch videos for a specific user
+export const getUserVideos = (userId, params = {}) => api.get(`/videos`, { params: { ...params, userId } });
+
+// Fetch tweets for a specific user
+export const getUserTweets = (userId) => api.get(`/tweets/user/${userId}`);
+
+// Fetch current user's videos for dashboard
+export const getDashboardVideos = () => api.get('/dashboard/videos');

@@ -18,6 +18,7 @@ import Sidebar from './components/Sidebar';
 import TweetsPage from './pages/TweetsPage';
 import HistoryPage from './pages/HistoryPage';
 import LikedVideosPage from './pages/LikedVideosPage';
+import DashboardPage from './pages/DashboardPage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -77,6 +78,7 @@ function App() {
             <Route path="/liked-videos" element={<LikedVideosPage />} />
             <Route path="/v/:id" element={<VideoPlayerPage />} />
             <Route path="/publishvideo" element={<PublishVideoPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
             {/* Redirect root to landing page */}
             <Route path="/" element={<Navigate to="/" replace />} />
           </Routes>

@@ -3,6 +3,7 @@ import './Sidebar.css';
 import { useNavigate } from 'react-router-dom';
 
 const SIDEBAR_TABS = [
+  { key: 'dashboard', icon: '📊', label: 'Dashboard', route: '/dashboard' },
   { key: 'home', icon: '🏠', label: 'Home', route: '/homepage' },
   { key: 'history', icon: '🕘', label: 'History', route: '/history' },
   { key: 'tweets', icon: '🐦', label: 'Tweets', route: '/tweets' },
