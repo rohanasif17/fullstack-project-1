@@ -86,6 +86,11 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(403, "You are not authorized to add videos to this playlist");
     }
 
+    // New check: Only allow adding your own videos to your own playlist
+    if (video.owner.toString() !== req.user?._id.toString()) {
+        throw new ApiError(403, "You can only add your own videos to your playlist");
+    }
+
     if (playlist.videos.includes(videoId)) {
         return res
             .status(200)
