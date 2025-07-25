@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './VideoCard.css';
 
-const VideoCard = ({ video }) => {
+const VideoCard = ({ video, small }) => {
   if (!video) return null;
 
   const {
@@ -50,7 +50,7 @@ const VideoCard = ({ video }) => {
   };
 
   return (
-    <Link to={`/v/${video._id}`} style={{ textDecoration: 'none' }} className="video-card" >
+    <Link to={`/v/${video._id}`} style={{ textDecoration: 'none' }} className={`video-card${small ? ' video-card-small' : ''}`} >
       <div className="video-card-outer">
         <div className="video-card-thumbnail-wrapper">
           <img src={thumbnail} alt={title} className="video-card-thumbnail" />
@@ -62,14 +62,14 @@ const VideoCard = ({ video }) => {
         <div className="video-card-info">
           <div className="video-card-row">
             <img
-              src={owner[0]?.avatar?.url || avatarImageSample}
+              src={owner?.avatar?.url || 'https://ui-avatars.com/api/?name=User'}
               alt={owner?.fullName || 'Avatar'}
               className="video-card-avatar"
             />
             <div className="video-card-title">{title}</div>
           </div>
           <div className="video-card-meta">
-            <span className="video-card-owner">{owner[0]?.fullName || 'Unknown'}</span>
+            <span className="video-card-owner">{owner?.fullName || 'Unknown'}</span>
             <span className="video-card-dot">•</span>
             <span className="video-card-views">{formatViews(views)} views</span>
             <span className="video-card-dot">•</span>

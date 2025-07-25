@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import VideoCard from '../components/VideoCard';
-import VideoCardSkeleton from '../components/VideoCardSkeleton';
 import { getVideos, getCurrentUser } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -70,13 +69,9 @@ const VideosPage = () => {
   }, [navigate]);
 
   if (loading) {
-    // Show a fixed number of skeleton placeholders while videos are loading
+    // Show nothing or a simple loading message while videos are loading
     return (
-      <div style={styles.gridContainer}>
-        {Array.from({ length: 8 }).map((_, idx) => (
-          <VideoCardSkeleton key={idx} />
-        ))}
-      </div>
+      <div style={styles.center}>Loading...</div>
     );
   }
   if (error) return <div style={styles.center}>{error}</div>;

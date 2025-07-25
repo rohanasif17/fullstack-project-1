@@ -164,9 +164,120 @@ const deleteTweet = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, {}, "Tweet deleted successfully"))
 })
 
+const getAllTweets = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, query, userId } = req.query;
+
+    const pipeline = [];
+
+    if (query) {
+        pipeline.push({
+            $search: {
+                index: "search-tweets",
+                text: {
+                    query: query,
+                    path: ["content"]
+                }
+            }
+        });
+    }
+
+    if (userId) {
+        if (!isValidObjectId(userId)) {
+            throw new ApiError(400, "Invalid userId");
+        }
+        pipeline.push({
+            $match: {
+                owner: new mongoose.Types.ObjectId(userId)
+            }
+        });
+    }
+
+    // Populate owner details (avatar, fullName, username)
+    pipeline.push({
+        $lookup: {
+            from: "users",
+            localField: "owner",
+            foreignField: "_id",
+            as: "owner",
+            pipeline: [
+                {
+                    $project: {
+                        username: 1,
+                        fullName: 1,
+                        "avatar.url": 1
+                    }
+                }
+            ]
+        }
+    });
+
+    // Flatten owner array to object for consistency
+    pipeline.push({
+        $addFields: {
+            user: { $arrayElemAt: ["$owner", 0] }
+        }
+    });
+
+    // Lookup likes for each tweet
+    pipeline.push({
+        $lookup: {
+            from: "likes",
+            localField: "_id",
+            foreignField: "tweet",
+            as: "likesArr"
+        }
+    });
+
+    // Add likes count and likedByMe
+    pipeline.push({
+        $addFields: {
+            likes: { $size: "$likesArr" },
+            likedByMe: {
+                $cond: {
+                    if: {
+                        $in: [req.user ? req.user._id : null, "$likesArr.likedBy"]
+                    },
+                    then: true,
+                    else: false
+                }
+            }
+        }
+    });
+
+    // Remove unnecessary fields
+    pipeline.push({
+        $project: {
+            owner: 0,
+            likesArr: 0
+        }
+    });
+
+    pipeline.push({ $sort: { createdAt: -1 } });
+
+    const tweetAggregate = Tweet.aggregate(pipeline);
+
+    const options = {
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10)
+    };
+
+    // Use aggregatePaginate if available, else fallback to aggregate
+    let tweets;
+    if (typeof Tweet.aggregatePaginate === 'function') {
+        tweets = await Tweet.aggregatePaginate(tweetAggregate, options);
+    } else {
+        tweets = await tweetAggregate;
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, tweets, "Tweets fetched successfully"));
+});
+
 export {
     createTweet,
     getUserTweets,
     updateTweet,
-    deleteTweet
+    deleteTweet,
+    getAllTweets
 }

@@ -1,0 +1,68 @@
+.tweet-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #232323;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.tweet-card-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #444;
+}
+
+.tweet-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tweet-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.tweet-card-name {
+  font-weight: 600;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.tweet-card-username {
+  color: #aaa;
+  font-size: 0.95rem;
+}
+
+.tweet-card-content {
+  color: #eaeaea;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  word-break: break-word;
+}
+
+.tweet-card-like {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.tweet-card-like.liked {
+  background: #e74c3c22;
+  color: #e74c3c;
+} 

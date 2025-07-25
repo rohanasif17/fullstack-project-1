@@ -29,7 +29,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .video-card-duration {
@@ -45,9 +45,8 @@
 }
 
 .video-card-avatar {
-  position: static;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 2px solid #181818;
   object-fit: cover;
@@ -58,23 +57,24 @@
 }
 
 .video-card-info {
-  padding: 24px 8px 8px 8px;
+  padding: 12px 6px 6px 6px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   color: #fff;
 }
 
 .video-card-title {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: 2.6em;
+  min-height: 2.2em;
   margin-bottom: 0;
 }
 
@@ -103,4 +103,17 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
+}
+
+/* Liked Videos Page Grid Styles */
+.liked-videos-grid-container {
+  height: 520px; /* or any fixed height you want */
+  overflow-y: auto;
+  margin-bottom: 24px;
+}
+
+.liked-videos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
 } 

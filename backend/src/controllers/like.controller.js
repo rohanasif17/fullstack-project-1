@@ -84,6 +84,15 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid tweetId");
     }
 
+    // Prevent user from liking their own tweet
+    const tweet = await Tweet.findById(tweetId);
+    if (!tweet) {
+        throw new ApiError(404, "Tweet not found");
+    }
+    if (tweet.owner.toString() === req.user._id.toString()) {
+        throw new ApiError(403, "You cannot like your own tweet");
+    }
+
     const likedAlready = await Like.findOne({
         tweet: tweetId,
         likedBy: req.user._id,
@@ -151,17 +160,17 @@ const getLikedVideos = asyncHandler(async (req, res) => {
             $unwind: "$likedVideo",
         },
         {
-            $sort: {
-                createdAt: -1,
-            },
+            $addFields: {
+                "likedVideo.owner": "$likedVideo.ownerDetails"
+            }
         },
         {
             $project: {
                 _id: 0,
                 likedVideo: {
                     _id: 1,
-                    "videoFile.url": 1,
-                    "thumbnail.url": 1,
+                    videoFile: 1,
+                    thumbnail: 1,
                     owner: 1,
                     title: 1,
                     description: 1,
@@ -169,12 +178,12 @@ const getLikedVideos = asyncHandler(async (req, res) => {
                     duration: 1,
                     createdAt: 1,
                     isPublished: 1,
-                    ownerDetails: {
-                        username: 1,
-                        fullName: 1,
-                        "avatar.url": 1,
-                    },
                 },
+            },
+        },
+        {
+            $sort: {
+                createdAt: -1,
             },
         },
     ]);

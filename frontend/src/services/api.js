@@ -41,3 +41,13 @@ export const publishVideo = (formData) =>
   api.post('/videos', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
+
+// Tweet APIs
+export const getAllTweets = () => api.get('/tweets');
+export const getUserHistory = () => api.get('/users/history');
+export const toggleTweetLike = (tweetId) => api.post(`/likes/toggle/t/${tweetId}`);
+export const createTweet = (content) => api.post('/tweets/createTweet', { content });
+export const updateTweet = (tweetId, content) => api.patch(`/tweets/${tweetId}`, { content });
+export const deleteTweet = (tweetId) => api.delete(`/tweets/${tweetId}`);
+
+export const getLikedVideos = () => api.get('/likes/videos');

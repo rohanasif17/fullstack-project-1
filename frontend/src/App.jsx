@@ -14,6 +14,10 @@ import ChangeAvatarModal from './components/ChangeAvatarModal';
 import ChangeCoverImageModal from './components/ChangeCoverImageModal';
 import { getCurrentUser } from './services/api';
 import UserAvatarDropdown from './components/UserAvatarDropdown';
+import Sidebar from './components/Sidebar';
+import TweetsPage from './pages/TweetsPage';
+import HistoryPage from './pages/HistoryPage';
+import LikedVideosPage from './pages/LikedVideosPage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -34,36 +38,56 @@ function App() {
     const location = useLocation();
     // Only show dropdown on homepage for authenticated users
     const showUserDropdown = isAuthenticated && location.pathname === '/homepage';
+    // Show sidebar on main app pages (not login/register/landing)
+    const showSidebar = !['/', '/login', '/register'].includes(location.pathname);
+    const [sidebarTab, setSidebarTab] = useState('history');
+    // Sidebar open/collapsed state lifted up
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
-      <>
-        {showUserDropdown && (
-          <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 1100 }}>
-            <UserAvatarDropdown
-              onShowChangePassword={() => setShowChangePassword(true)}
-              onShowEditDetails={() => setShowEditDetails(true)}
-              onShowChangeAvatar={() => setShowChangeAvatar(true)}
-              onShowChangeCover={() => setShowChangeCover(true)}
-            />
-          </div>
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        {showSidebar && (
+          <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
         )}
-        <Routes>
-          <Route path="/" element={<LandingPage setIsAuthenticated={setIsAuthenticated} />} />
-          <Route path="/login" element={<LoginPage setIsAuthenticated={setIsAuthenticated} />} />
-          <Route path="/register" element={<RegisterPage setIsAuthenticated={setIsAuthenticated} />} />
-          <Route path="/homepage" element={<VideosPage />} />
-          <Route path="/v/:id" element={<VideoPlayerPage />} />
-          <Route path="/publishvideo" element={<PublishVideoPage />} />
-          {/* Redirect root to landing page */}
-          <Route path="/" element={<Navigate to="/" replace />} />
-        </Routes>
+        <div
+          style={{
+            flex: 1,
+            position: 'relative',
+            marginLeft: showSidebar && !sidebarOpen ? 60 : 0, // 60px margin when sidebar is collapsed
+            transition: 'margin-left 0.3s cubic-bezier(0.4,0,0.2,1)',
+          }}
+        >
+          {showUserDropdown && (
+            <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 1100 }}>
+              <UserAvatarDropdown
+                onShowChangePassword={() => setShowChangePassword(true)}
+                onShowEditDetails={() => setShowEditDetails(true)}
+                onShowChangeAvatar={() => setShowChangeAvatar(true)}
+                onShowChangeCover={() => setShowChangeCover(true)}
+              />
+            </div>
+          )}
+          <Routes>
+            <Route path="/" element={<LandingPage setIsAuthenticated={setIsAuthenticated} />} />
+            <Route path="/login" element={<LoginPage setIsAuthenticated={setIsAuthenticated} />} />
+            <Route path="/register" element={<RegisterPage setIsAuthenticated={setIsAuthenticated} />} />
+            <Route path="/homepage" element={<VideosPage />} />
+            <Route path="/tweets" element={<TweetsPage />} />
+            <Route path="/history" element={<HistoryPage />} />
+            <Route path="/liked-videos" element={<LikedVideosPage />} />
+            <Route path="/v/:id" element={<VideoPlayerPage />} />
+            <Route path="/publishvideo" element={<PublishVideoPage />} />
+            {/* Redirect root to landing page */}
+            <Route path="/" element={<Navigate to="/" replace />} />
+          </Routes>
 
-        {/* Modals triggered from dropdown */}
-        <ChangePasswordModal show={showChangePassword} onHide={() => setShowChangePassword(false)} />
-        <UpdateDetailsModal show={showEditDetails} onHide={() => setShowEditDetails(false)} />
-        <ChangeAvatarModal show={showChangeAvatar} onHide={() => setShowChangeAvatar(false)} />
-        <ChangeCoverImageModal show={showChangeCover} onHide={() => setShowChangeCover(false)} />
-      </>
+          {/* Modals triggered from dropdown */}
+          <ChangePasswordModal show={showChangePassword} onHide={() => setShowChangePassword(false)} />
+          <UpdateDetailsModal show={showEditDetails} onHide={() => setShowEditDetails(false)} />
+          <ChangeAvatarModal show={showChangeAvatar} onHide={() => setShowChangeAvatar(false)} />
+          <ChangeCoverImageModal show={showChangeCover} onHide={() => setShowChangeCover(false)} />
+        </div>
+      </div>
     );
   };
 

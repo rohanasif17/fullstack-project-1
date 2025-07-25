@@ -73,6 +73,12 @@ const getAllVideos = asyncHandler(async (req, res) => {
             ]
         }
     });
+    // Flatten owner array to object for consistency
+    pipeline.push({
+        $addFields: {
+            owner: { $first: "$owner" }
+        }
+    });
 
     pipeline.push({ $sort: { createdAt: -1 } });
 
