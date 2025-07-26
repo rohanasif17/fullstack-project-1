@@ -1,5 +1,6 @@
 import mongoose, {isValidObjectId} from "mongoose"
 import {Playlist} from "../models/playlist.model.js"
+import {User} from "../models/user.model.js"
 import ApiError from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
@@ -8,6 +9,9 @@ import { Video } from "../models/video.model.js"
 
 const createPlaylist = asyncHandler(async (req, res) => {
     const {name, description} = req.body
+
+    console.log("Creating playlist for user:", req.user?._id);
+    console.log("Playlist data:", { name, description });
 
     if (!name) {
         throw new ApiError(400, "Name is required");
@@ -19,6 +23,8 @@ const createPlaylist = asyncHandler(async (req, res) => {
         owner: req.user?._id,
         videos: []
     });
+
+    console.log("Created playlist:", playlist);
 
     if (!playlist) {
         throw new ApiError(500, "Failed to create playlist");
@@ -36,15 +42,43 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid userId");
     }
 
-    const playlists = await Playlist.find({ owner: userId }).populate("videos");
+    const playlists = await Playlist.find({ owner: userId }).populate({
+        path: "videos",
+        populate: {
+            path: "owner",
+            select: "fullName username avatar"
+        }
+    });
 
-    if (!playlists) {
-        throw new ApiError(404, "No playlists found for this user");
-    }
-
+    // Do not throw a 404 if playlists is empty; always return an array
     return res
         .status(200)
         .json(new ApiResponse(200, playlists, "User playlists fetched successfully"));
+})
+
+const getCurrentUserPlaylists = asyncHandler(async (req, res) => {
+    if (!req.user?._id) {
+        throw new ApiError(401, "User not authenticated");
+    }
+    
+    // First, let's check if the user exists
+    const user = await User.findById(req.user?._id);
+    
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    
+    const playlists = await Playlist.find({ owner: req.user?._id }).populate({
+        path: "videos",
+        populate: {
+            path: "owner",
+            select: "fullName username avatar"
+        }
+    });
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, playlists, "Current user playlists fetched successfully"));
 })
 
 const getPlaylistById = asyncHandler(async (req, res) => {
@@ -54,15 +88,77 @@ const getPlaylistById = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid playlistId");
     }
 
-    const playlist = await Playlist.findById(playlistId).populate("videos");
+    // First get the playlist to get the video IDs
+    const playlist = await Playlist.findById(playlistId);
 
     if (!playlist) {
         throw new ApiError(404, "Playlist not found");
     }
 
+    // Use aggregation to get videos with like information
+    const videosWithLikes = await Video.aggregate([
+        {
+            $match: {
+                _id: { $in: playlist.videos.map(id => new mongoose.Types.ObjectId(id)) }
+            },
+        },
+        {
+            $lookup: {
+                from: "likes",
+                localField: "_id",
+                foreignField: "video",
+                as: "likes",
+            },
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                    {
+                        $project: {
+                            username: 1,
+                            fullName: 1,
+                            "avatar.url": 1,
+                        },
+                    },
+                ],
+            },
+        },
+        {
+            $addFields: {
+                likesCount: {
+                    $size: "$likes",
+                },
+                isLiked: {
+                    $cond: {
+                        if: {
+                            $in: [req.user?._id, "$likes.likedBy"],
+                        },
+                        then: true,
+                        else: false,
+                    },
+                },
+            },
+        },
+        {
+            $project: {
+                likes: 0,
+            },
+        },
+    ]);
+
+    // Create the response object with videos that include like information
+    const playlistWithVideos = {
+        ...playlist.toObject(),
+        videos: videosWithLikes
+    };
+
     return res
         .status(200)
-        .json(new ApiResponse(200, playlist, "Playlist fetched successfully"));
+        .json(new ApiResponse(200, playlistWithVideos, "Playlist fetched successfully"));
 })
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
@@ -84,11 +180,6 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 
     if (playlist.owner.toString() !== req.user?._id.toString()) {
         throw new ApiError(403, "You are not authorized to add videos to this playlist");
-    }
-
-    // New check: Only allow adding your own videos to your own playlist
-    if (video.owner.toString() !== req.user?._id.toString()) {
-        throw new ApiError(403, "You can only add your own videos to your playlist");
     }
 
     if (playlist.videos.includes(videoId)) {
@@ -217,6 +308,7 @@ const updatePlaylist = asyncHandler(async (req, res) => {
 export {
     createPlaylist,
     getUserPlaylists,
+    getCurrentUserPlaylists,
     getPlaylistById,
     addVideoToPlaylist,
     removeVideoFromPlaylist,

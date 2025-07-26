@@ -1,8 +1,12 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, memo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './VideoCard.css';
+import AddToPlaylistModal from './AddToPlaylistModal';
 
-const VideoCard = ({ video, small }) => {
+const VideoCard = ({ video, small, active, disableNavigation }) => {
+  const navigate = useNavigate();
+  const [showAddToPlaylist, setShowAddToPlaylist] = useState(false);
+  
   if (!video) return null;
 
   const {
@@ -49,35 +53,108 @@ const VideoCard = ({ video, small }) => {
     return 'Just now';
   };
 
+  const handleOwnerClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const ownerData = Array.isArray(owner) ? owner[0] : owner;
+    if (ownerData?.username) {
+      navigate(`/users/c/${ownerData.username}`);
+    }
+  };
+
+  const handleAddToPlaylist = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowAddToPlaylist(true);
+  };
+
   return (
-    <Link to={`/v/${video._id}`} style={{ textDecoration: 'none' }} className={`video-card${small ? ' video-card-small' : ''}`} >
-      <div className="video-card-outer">
-        <div className="video-card-thumbnail-wrapper">
-          <img src={thumbnail} alt={title} className="video-card-thumbnail" />
-          {/* Duration */}
-          {duration !== undefined && (
-            <span className="video-card-duration">{formatDuration(duration)}</span>
-          )}
-        </div>
-        <div className="video-card-info">
-          <div className="video-card-row">
-            <img
-              src={owner?.avatar?.url || 'https://ui-avatars.com/api/?name=User'}
-              alt={owner?.fullName || 'Avatar'}
-              className="video-card-avatar"
-            />
-            <div className="video-card-title">{title}</div>
+    <div className={`video-card-container${small ? ' video-card-small' : ''}${active ? ' video-card-active' : ''}`}>
+      {disableNavigation ? (
+        <div className="video-card-link" style={{ textDecoration: 'none' }}>
+          <div className="video-card-outer">
+            <div className="video-card-thumbnail-wrapper">
+              <img src={thumbnail} alt={title} className="video-card-thumbnail" />
+              {/* Duration */}
+              {duration !== undefined && (
+                <span className="video-card-duration">{formatDuration(duration)}</span>
+              )}
+            </div>
+            <div className="video-card-info">
+              <div className="video-card-row">
+                <img
+                  src={(Array.isArray(owner) ? owner[0]?.avatar?.url : owner?.avatar?.url) || 'https://ui-avatars.com/api/?name=User'}
+                  alt={(Array.isArray(owner) ? owner[0]?.fullName : owner?.fullName) || 'Avatar'}
+                  className="video-card-avatar"
+                />
+                <div className="video-card-title">{title}</div>
+              </div>
+              <div className="video-card-meta">
+                <span 
+                  className="video-card-owner clickable-owner"
+                  onClick={handleOwnerClick}
+                >
+                  {(Array.isArray(owner) ? owner[0]?.fullName : owner?.fullName) || 'Unknown'}
+                </span>
+                <span className="video-card-dot">•</span>
+                <span className="video-card-views">{formatViews(views)} views</span>
+                <span className="video-card-dot">•</span>
+                <span className="video-card-time">{timeAgo(createdAt)}</span>
+              </div>
+            </div>
           </div>
-          <div className="video-card-meta">
-            <span className="video-card-owner">{owner?.fullName || 'Unknown'}</span>
-            <span className="video-card-dot">•</span>
-            <span className="video-card-views">{formatViews(views)} views</span>
-            <span className="video-card-dot">•</span>
-            <span className="video-card-time">{timeAgo(createdAt)}</span>
-          </div>
         </div>
-      </div>
-    </Link>
+      ) : (
+        <Link to={`/v/${video._id}`} style={{ textDecoration: 'none' }} className="video-card-link">
+          <div className="video-card-outer">
+            <div className="video-card-thumbnail-wrapper">
+              <img src={thumbnail} alt={title} className="video-card-thumbnail" />
+              {/* Duration */}
+              {duration !== undefined && (
+                <span className="video-card-duration">{formatDuration(duration)}</span>
+              )}
+            </div>
+            <div className="video-card-info">
+              <div className="video-card-row">
+                <img
+                  src={(Array.isArray(owner) ? owner[0]?.avatar?.url : owner?.avatar?.url) || 'https://ui-avatars.com/api/?name=User'}
+                  alt={(Array.isArray(owner) ? owner[0]?.fullName : owner?.fullName) || 'Avatar'}
+                  className="video-card-avatar"
+                />
+                <div className="video-card-title">{title}</div>
+              </div>
+              <div className="video-card-meta">
+                <span 
+                  className="video-card-owner clickable-owner"
+                  onClick={handleOwnerClick}
+                >
+                  {(Array.isArray(owner) ? owner[0]?.fullName : owner?.fullName) || 'Unknown'}
+                </span>
+                <span className="video-card-dot">•</span>
+                <span className="video-card-views">{formatViews(views)} views</span>
+                <span className="video-card-dot">•</span>
+                <span className="video-card-time">{timeAgo(createdAt)}</span>
+              </div>
+            </div>
+          </div>
+        </Link>
+      )}
+      
+      {/* Add to Playlist Button */}
+      <button
+        className="video-card-add-to-playlist"
+        onClick={handleAddToPlaylist}
+        title="Add to Playlist"
+      >
+        📁
+      </button>
+
+      <AddToPlaylistModal
+        show={showAddToPlaylist}
+        onHide={() => setShowAddToPlaylist(false)}
+        video={video}
+      />
+    </div>
   );
 };
 
@@ -175,4 +252,4 @@ const styles = {
   },
 };
 
-export default VideoCard; 
+export default memo(VideoCard); 

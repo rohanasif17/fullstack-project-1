@@ -1,10 +1,17 @@
-.video-card {
+.video-card-container {
+  position: relative;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.video-card:hover {
+.video-card-container:hover {
   transform: scale(1.01);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.video-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .video-card-outer {
@@ -91,6 +98,15 @@
   color: #c7c7c7;
 }
 
+.clickable-owner {
+  cursor: pointer;
+  transition: text-decoration 0.2s ease;
+}
+
+.clickable-owner:hover {
+  text-decoration: underline;
+}
+
 .video-card-dot {
   margin: 0 2px;
 }
@@ -116,4 +132,40 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
+}
+
+/* Add to Playlist Button */
+.video-card-add-to-playlist {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+  z-index: 10;
+}
+
+.video-card-container:hover .video-card-add-to-playlist {
+  opacity: 1;
+}
+
+.video-card-add-to-playlist:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.video-card-active {
+  border: 2px solid #4fc3f7;
+  background: rgba(79, 195, 247, 0.08);
+  box-shadow: 0 0 0 2px #4fc3f733;
+  transition: border 0.2s, background 0.2s, box-shadow 0.2s;
 } 

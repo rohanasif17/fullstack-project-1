@@ -12,13 +12,17 @@ import ChangePasswordModal from './components/ChangePasswordModal';
 import UpdateDetailsModal from './components/UpdateDetailsModal';
 import ChangeAvatarModal from './components/ChangeAvatarModal';
 import ChangeCoverImageModal from './components/ChangeCoverImageModal';
-import { getCurrentUser } from './services/api';
+import { getCurrentUser, refreshToken } from './services/api';
 import UserAvatarDropdown from './components/UserAvatarDropdown';
 import Sidebar from './components/Sidebar';
 import TweetsPage from './pages/TweetsPage';
 import HistoryPage from './pages/HistoryPage';
 import LikedVideosPage from './pages/LikedVideosPage';
 import DashboardPage from './pages/DashboardPage';
+import UserProfilePage from './pages/UserProfilePage';
+import PlaylistsPage from './pages/PlaylistsPage';
+import PlaylistDetailPage from './pages/PlaylistDetailPage';
+import SearchComponent from './components/SearchComponent.jsx';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -27,11 +31,31 @@ function App() {
   const [showChangeAvatar, setShowChangeAvatar] = useState(false);
   const [showChangeCover, setShowChangeCover] = useState(false);
 
-  // Restore authentication state on mount
+  // Restore authentication state on mount with automatic token refresh
   useEffect(() => {
-    getCurrentUser()
-      .then(() => setIsAuthenticated(true))
-      .catch(() => setIsAuthenticated(false));
+    const checkAuth = async () => {
+      try {
+        await getCurrentUser();
+        setIsAuthenticated(true);
+      } catch (error) {
+        // If getCurrentUser fails, try to refresh the token
+        if (error.response?.status === 401) {
+          try {
+            await refreshToken();
+            // Token refreshed successfully, try getCurrentUser again
+            await getCurrentUser();
+            setIsAuthenticated(true);
+          } catch (refreshError) {
+            // If refresh also fails, user is not authenticated
+            setIsAuthenticated(false);
+          }
+        } else {
+          setIsAuthenticated(false);
+        }
+      }
+    };
+
+    checkAuth();
   }, []);
 
   // We need location inside Router context → define inner component
@@ -41,6 +65,7 @@ function App() {
     const showUserDropdown = isAuthenticated && location.pathname === '/homepage';
     // Show sidebar on main app pages (not login/register/landing)
     const showSidebar = !['/', '/login', '/register'].includes(location.pathname);
+    const showSearchBar = !['/', '/login', '/register'].includes(location.pathname);
     const [sidebarTab, setSidebarTab] = useState('history');
     // Sidebar open/collapsed state lifted up
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -58,6 +83,7 @@ function App() {
             transition: 'margin-left 0.3s cubic-bezier(0.4,0,0.2,1)',
           }}
         >
+          {showSearchBar && <SearchComponent />}
           {showUserDropdown && (
             <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 1100 }}>
               <UserAvatarDropdown
@@ -76,9 +102,12 @@ function App() {
             <Route path="/tweets" element={<TweetsPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/liked-videos" element={<LikedVideosPage />} />
+            <Route path="/playlists" element={<PlaylistsPage />} />
+            <Route path="/playlist/:playlistId" element={<PlaylistDetailPage />} />
             <Route path="/v/:id" element={<VideoPlayerPage />} />
             <Route path="/publishvideo" element={<PublishVideoPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/users/c/:username" element={<UserProfilePage />} />
             {/* Redirect root to landing page */}
             <Route path="/" element={<Navigate to="/" replace />} />
           </Routes>

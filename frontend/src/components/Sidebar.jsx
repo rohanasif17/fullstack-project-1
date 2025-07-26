@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, memo } from 'react';
 import './Sidebar.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,6 +8,7 @@ const SIDEBAR_TABS = [
   { key: 'history', icon: '🕘', label: 'History', route: '/history' },
   { key: 'tweets', icon: '🐦', label: 'Tweets', route: '/tweets' },
   { key: 'liked-videos', icon: '💖', label: 'Liked Videos', route: '/liked-videos' },
+  { key: 'playlists', icon: '📁', label: 'Playlists', route: '/playlists' },
 ];
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
@@ -62,4 +63,4 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   );
 };
 
-export default Sidebar; 
+export default memo(Sidebar); 

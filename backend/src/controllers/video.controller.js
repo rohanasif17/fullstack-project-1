@@ -425,6 +425,43 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, updatedVideo, "Publish status toggled successfully"));
 });
 
+// Search videos for search bar
+export const searchVideos = asyncHandler(async (req, res) => {
+    const { q } = req.query;
+    if (!q || !q.trim()) {
+        return res.status(200).json({ results: [] });
+    }
+
+    const pipeline = [
+        {
+            $search: {
+                index: "search-videos",
+                text: {
+                    query: q,
+                    path: ["title", "description"]
+                }
+            }
+        },
+        { $match: { isPublished: true } },
+        { $limit: 10 },
+        {
+            $project: {
+                _id: 1,
+                title: 1,
+                description: 1
+            }
+        }
+    ];
+
+    const results = await Video.aggregate(pipeline);
+    const formatted = results.map(v => ({
+        title: v.title,
+        description: v.description,
+        url: `/videos/${v._id}`
+    }));
+    return res.status(200).json({ results: formatted });
+});
+
 export {
     getAllVideos,
     publishAVideo,

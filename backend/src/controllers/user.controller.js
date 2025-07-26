@@ -141,16 +141,25 @@ const loginUser = asyncHandler( async (req, res) => {
     const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id)
     const loggedInUser = await User.findById(user._id).select('-password -refreshToken')
 
-    //send cookie
-    const options = {
+    //send cookie with persistent authentication
+    const accessTokenOptions = {
         httpOnly: true,
-        secure: true
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        maxAge: 60 * 60 * 1000 // 1 hour for access token
+    }
+    
+    const refreshTokenOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        maxAge: 10 * 24 * 60 * 60 * 1000 // 10 days for refresh token
     }
     
         res
         .status(200)
-        .cookie('accessToken', accessToken , options)
-        .cookie('refreshToken', refreshToken , options)
+        .cookie('accessToken', accessToken , accessTokenOptions)
+        .cookie('refreshToken', refreshToken , refreshTokenOptions)
         .json(new ApiResponse(200, {
             user: loggedInUser, accessToken, refreshToken
             } , 'User logged in successfully'))
@@ -165,15 +174,22 @@ const logoutUser = asyncHandler( async (req, res) =>{
             new : true
         }
     ) 
-    const options = {
+    const accessTokenOptions = {
         httpOnly: true,
-        secure: true
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
+    }
+    
+    const refreshTokenOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
     }
 
     return res
     .status(200)
-    .clearCookie('accessToken', options)
-    .clearCookie('refreshToken', options)
+    .clearCookie('accessToken', accessTokenOptions)
+    .clearCookie('refreshToken', refreshTokenOptions)
     .json( new ApiResponse(200), {}, 'User logged out successfully')
 })
 const refreshAccessToken = asyncHandler(async (req, res) => {
@@ -200,21 +216,30 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
             
         }
     
-        const options = {
+        const accessTokenOptions = {
             httpOnly: true,
-            secure: true
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+            maxAge: 60 * 60 * 1000 // 1 hour for access token
+        }
+        
+        const refreshTokenOptions = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+            maxAge: 10 * 24 * 60 * 60 * 1000 // 10 days for refresh token
         }
     
-        const {accessToken, newRefreshToken} = await generateAccessAndRefreshToken(user._id)
+        const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id)
     
         return res
         .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", newRefreshToken, options)
+        .cookie("accessToken", accessToken, accessTokenOptions)
+        .cookie("refreshToken", refreshToken, refreshTokenOptions)
         .json(
             new ApiResponse(
                 200, 
-                {accessToken, refreshToken: newRefreshToken},
+                {accessToken, refreshToken: refreshToken},
                 "Access token refreshed"
             )
         )

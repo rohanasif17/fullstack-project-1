@@ -13,8 +13,6 @@ const ChangePasswordModal = ({ show, onHide }) => {
   });
   const [errorMsg, setErrorMsg] = useState('');
   const [showError, setShowError] = useState(false);
-  // Hover state for trigger button
-  const [isHovered, setIsHovered] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
 

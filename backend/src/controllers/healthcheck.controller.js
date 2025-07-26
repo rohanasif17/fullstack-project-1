@@ -1,18 +1,15 @@
-import ApiError from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
-import {asyncHandler} from "../utils/asyncHandler.js"
 
-
-const healthcheck = asyncHandler(async (req, res) => {
+const healthcheck = (req, res) => {
     //TODO: build a healthcheck response that checks for database connection and other services
     try {
         return res
         .status(200)
         .json(new ApiResponse(200, {}, "Server is healthy and running"));
     } catch (error) {
-        throw new ApiError(503, "Server is not healthy");
+        return res.status(503).json(new ApiResponse(503, {}, "Server is not healthy"));
     }
-})
+}
 
 export {
     healthcheck

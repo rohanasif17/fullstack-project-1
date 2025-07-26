@@ -17,7 +17,6 @@ const UpdateDetailsModal = ({ show, onHide }) => {
   const [showError, setShowError] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   const handleClose = () => {
     // Reset transient UI state but keep latest form values on close

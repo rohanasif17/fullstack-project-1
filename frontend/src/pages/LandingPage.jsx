@@ -53,6 +53,8 @@ const LandingPage = ({ setIsAuthenticated }) => {
       setIsAuthenticated && setIsAuthenticated(true);
       navigate('/homepage');
     } catch (err) {
+      // If authentication fails, redirect to register page
+      // Don't try to refresh token here as it will cause infinite loop
       navigate('/register');
     }
   };
@@ -100,7 +102,7 @@ const LandingPage = ({ setIsAuthenticated }) => {
       <div style={styles.left}>
         <h1 style={styles.heading}>Post It. Tweet It. Stream It. Own It.</h1>
         <p style={styles.subheading}>
-          Whether it’s a late-night thought, a new playlist drop, or a viral video, this is your space to create, connect, and share without limits.
+          Whether it's a late-night thought, a new playlist drop, or a viral video, this is your space to create, connect, and share without limits.
         </p>
         <button style={styles.getStartedButton} className="button-landing blur-hover" onClick={handleGetStarted}>Get Started</button>
       </div>

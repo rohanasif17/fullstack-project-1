@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import {
-  getVideoById,
   toggleVideoLike,
   getVideoComments,
   addVideoComment,
@@ -10,40 +8,57 @@ import {
   getChannelSubscribers,
   toggleChannelSubscription,
   addVideoView,
+  updateComment,
+  deleteComment
 } from '../services/api';
-import { updateComment, deleteComment } from '../services/api';
-import CommentItem from '../components/CommentItem';
-// (Decorative image imports removed)
+import CommentItem from './CommentItem';
 
-// (Decorative image arrays removed)
-
-const VideoPlayerPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+const VideoPlayer = ({ video, onEnded, playNextPrompt, onPlayNext }) => {
   const videoRef = useRef(null);
   const hasCountedViewRef = useRef(false);
 
-  const [videoData, setVideoData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [videoData, setVideoData] = useState(video);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(0);
+  const [isLiked, setIsLiked] = useState(Boolean(video?.isLiked));
+  const [likesCount, setLikesCount] = useState(video?.likesCount || 0);
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [channelId, setChannelId] = useState(null);
+  const [channelId, setChannelId] = useState(video?.owner?.[0]?._id);
   const [subscribersList, setSubscribersList] = useState([]);
-  // removed fullscreen feature
   const [descExpanded, setDescExpanded] = useState(false);
   const [subCount, setSubCount] = useState(0);
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
+  const [videoEnded, setVideoEnded] = useState(false);
 
-  // Determine if the current logged-in user is the owner of the video
   const isOwner = Boolean(
-    currentUser?._id && videoData?.owner?.[0]?._id === currentUser._id
+    currentUser?._id && (Array.isArray(videoData?.owner) ? videoData?.owner?.[0]?._id : videoData?.owner?._id) === currentUser._id
   );
 
-  // Fetch current user once
+  useEffect(() => {
+    setVideoData(video);
+    // Initialize like state from video data
+    if (video) {
+      setIsLiked(Boolean(video.isLiked));
+      setLikesCount(video.likesCount || 0);
+    } else {
+      setIsLiked(false);
+      setLikesCount(0);
+    }
+    // Handle both array and object formats for owner
+    const ownerId = Array.isArray(video?.owner) ? video?.owner?.[0]?._id : video?.owner?._id;
+    setChannelId(ownerId);
+    setError('');
+    setDescExpanded(false);
+    setComments([]);
+    setCommentText('');
+    setSubscribersList([]);
+    setSubCount(0);
+    hasCountedViewRef.current = false;
+    setVideoEnded(false);
+  }, [video]);
+
   useEffect(() => {
     (async () => {
       try {
@@ -53,39 +68,17 @@ const VideoPlayerPage = () => {
     })();
   }, []);
 
-  // Fetch video details
   useEffect(() => {
-    const fetchVideo = async () => {
-      try {
-        const res = await getVideoById(id);
-        const data = res.data?.data;
-        setVideoData(data);
-        setIsLiked(Boolean(data?.isLiked));
-        setLikesCount(data?.likesCount || 0);
+    if (!channelId) return;
+    getChannelSubscribers(channelId)
+      .then((res) => {
+        const list = Array.isArray(res.data?.data) ? res.data.data : [];
+        setSubCount(list.length);
+        setSubscribersList(list);
+      })
+      .catch(() => {});
+  }, [channelId]);
 
-        // fetch subscribers count
-        const cId = data?.owner?.[0]?._id;
-        if (cId) {
-          setChannelId(cId);
-          getChannelSubscribers(cId)
-            .then((res) => {
-              const list = Array.isArray(res.data?.data) ? res.data.data : [];
-              setSubCount(list.length);
-              setSubscribersList(list);
-            })
-            .catch(() => {});
-        }
-      } catch (err) {
-        const msg = err.response?.data?.message || 'Failed to load video';
-        setError(msg);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchVideo();
-  }, [id]);
-
-  // derive subscription state when user and subscriber list are ready
   useEffect(() => {
     if (currentUser && subscribersList.length) {
       const subscribed = subscribersList.some((s) => s.subscriber === currentUser._id);
@@ -93,11 +86,11 @@ const VideoPlayerPage = () => {
     }
   }, [currentUser, subscribersList]);
 
-  // Fetch comments
   useEffect(() => {
+    if (!videoData?._id) return;
     const fetchComments = async () => {
       try {
-        const res = await getVideoComments(id);
+        const res = await getVideoComments(videoData._id);
         const data = res.data?.data;
         const commentDocs = Array.isArray(data?.docs) ? data.docs : Array.isArray(data) ? data : [];
         setComments(commentDocs);
@@ -106,19 +99,17 @@ const VideoPlayerPage = () => {
       }
     };
     fetchComments();
-  }, [id]);
+  }, [videoData?._id]);
 
-  // Register view counting (30s playback or full watch)
   useEffect(() => {
     const vid = videoRef.current;
-    if (!vid) return;
+    if (!vid || !videoData?._id) return;
 
     const registerView = async () => {
       if (hasCountedViewRef.current) return;
       try {
-        await addVideoView(id);
+        await addVideoView(videoData._id);
         hasCountedViewRef.current = true;
-        // update local view count to reflect change immediately
         setVideoData((prev) => (prev ? { ...prev, views: (prev.views || 0) + 1 } : prev));
       } catch {
         /* ignore */
@@ -131,16 +122,26 @@ const VideoPlayerPage = () => {
       }
     };
 
+    const handlePlay = () => {
+      setVideoEnded(false);
+    };
+
+    const handleEnded = () => {
+      setVideoEnded(true);
+      if (onEnded) onEnded();
+    };
+
     vid.addEventListener('timeupdate', handleTimeUpdate);
-    vid.addEventListener('ended', registerView);
+    vid.addEventListener('ended', handleEnded);
+    vid.addEventListener('play', handlePlay);
 
     return () => {
       vid.removeEventListener('timeupdate', handleTimeUpdate);
-      vid.removeEventListener('ended', registerView);
+      vid.removeEventListener('ended', handleEnded);
+      vid.removeEventListener('play', handlePlay);
     };
-  }, [id]);
+  }, [videoData?._id, onEnded]);
 
-  // Handle keyboard events
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!videoRef.current) return;
@@ -154,29 +155,24 @@ const VideoPlayerPage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // removed custom progress bar logic
-
   const toggleLike = async () => {
-    if (isOwner) return; // Owners cannot like their own videos
+    if (isOwner) return;
     try {
       setIsLiked((prev) => !prev);
       setLikesCount((prev) => prev + (isLiked ? -1 : 1));
-      await toggleVideoLike(id);
-    } catch {
+      await toggleVideoLike(videoData._id);
+    } catch (error) {
       // revert on error
       setIsLiked((prev) => !prev);
       setLikesCount((prev) => prev + (isLiked ? 1 : -1));
     }
   };
 
-  // fullscreen removed
-
   const handleAddComment = async () => {
-    if (isOwner) return; // Owners cannot comment on their own videos
+    if (isOwner) return;
     if (!commentText.trim()) return;
     try {
-      const res = await addVideoComment(id, commentText.trim());
-      // Inject current user info so that UI reflects immediately
+      const res = await addVideoComment(videoData._id, commentText.trim());
       const newComment = {
         ...res.data?.data,
         owner: currentUser,
@@ -207,7 +203,6 @@ const VideoPlayerPage = () => {
       );
       await toggleCommentLike(cId);
     } catch {
-      // revert on error
       setComments((prev) =>
         prev.map((c, i) => {
           if (i === idx) {
@@ -232,7 +227,6 @@ const VideoPlayerPage = () => {
       );
       await updateComment(commentId, newContent);
     } catch {
-      // revert on error
       setComments((prev) =>
         prev.map((c, i) => (i === idx ? { ...c, content: oldContent } : c))
       );
@@ -241,7 +235,6 @@ const VideoPlayerPage = () => {
 
   const handleDeleteComment = async (commentId, idx) => {
     try {
-      // optimistic update
       setComments((prev) => prev.filter((_, i) => i !== idx));
       await deleteComment(commentId);
     } catch {
@@ -251,39 +244,38 @@ const VideoPlayerPage = () => {
 
   const handleToggleSubscription = async () => {
     if (!channelId) return;
+    console.log('Toggling subscription for channelId:', channelId);
     try {
       const res = await toggleChannelSubscription(channelId);
       const subscribed = res.data?.data?.subscribed;
+      console.log('Subscription response:', res.data?.data);
       if (typeof subscribed === 'boolean') {
         setIsSubscribed(subscribed);
         setSubCount((prev) => prev + (subscribed ? 1 : -1));
       }
-    } catch {
+    } catch (error) {
+      console.error('Subscription error:', error);
       /* ignore */
     }
   };
 
-  if (loading) return <div style={styles.center}>Loading...</div>;
-  if (error) return <div style={styles.center}>{error}</div>;
   if (!videoData) return null;
 
   const {
     videoFile,
     title,
     owner,
-    description,
+    description = '',
     views = 0,
     createdAt,
   } = videoData;
 
-  // Utility to format large numbers into a compact representation (e.g., 1.2K, 3.4M)
   const formatNumber = (num) => {
     if (num >= 1_000_000) return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
     if (num >= 1_000) return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
     return num.toString();
   };
 
-  // Utility to get relative time string (e.g., "3 years ago")
   const getTimeAgo = (dateStr) => {
     if (!dateStr) return '';
     const seconds = Math.floor((Date.now() - new Date(dateStr)) / 1000);
@@ -306,48 +298,64 @@ const VideoPlayerPage = () => {
 
   return (
     <div style={styles.pageWrapper}>
-      {/* decorative images removed */}
-
       <div style={styles.videoContainer}>
         <video
           ref={videoRef}
-          src={videoFile}
+          src={videoFile?.url || videoFile}
           autoPlay
           controls
           style={styles.video}
+          onEnded={onEnded}
         />
+        {playNextPrompt && videoEnded && (
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'none',
+            zIndex: 2
+          }}>
+            <button
+              onClick={onPlayNext}
+              style={{
+                color: '#e0e0e0',
+                background: 'rgba(30,30,30,0.25)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: 'none',
+                borderRadius: 12,
+                padding: '16px 36px',
+                fontWeight: 800,
+                fontSize: 22,
+                cursor: 'pointer',
+                boxShadow: '0 2px 16px #0006',
+                pointerEvents: 'auto',
+                opacity: 0.97,
+                transition: 'background 0.2s, color 0.2s',
+              }}
+            >
+              {playNextPrompt}
+            </button>
+          </div>
+        )}
       </div>
-
-      {/* Video info */}
       <h2 style={styles.title}>{title}</h2>
       <span style={styles.meta}>
         {formatNumber(views)} views{createdAt ? ` · ${getTimeAgo(createdAt)}` : ''}
       </span>
       <div style={styles.channelRow}>
         <img
-          src={owner?.[0]?.avatar?.url || ''}
-          alt={owner?.[0]?.fullName || 'avatar'}
+          src={(Array.isArray(owner) ? owner?.[0]?.avatar?.url : owner?.avatar?.url) || ''}
+          alt={(Array.isArray(owner) ? owner?.[0]?.fullName : owner?.fullName) || 'avatar'}
           style={styles.avatar}
         />
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span
-            style={{ ...styles.ownerName, ...styles.clickable }}
-            onClick={() => owner?.[0]?.username && navigate(`/users/c/${owner[0].username}`)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={e => { if (e.key === 'Enter') owner?.[0]?.username && navigate(`/users/c/${owner[0].username}`); }}
-          >
-            {owner?.[0]?.fullName || 'Unknown'}
-          </span>
-          <span
-            style={{ ...styles.subscribers, ...styles.clickable }}
-            onClick={() => owner?.[0]?.username && navigate(`/users/c/${owner[0].username}`)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={e => { if (e.key === 'Enter') owner?.[0]?.username && navigate(`/users/c/${owner[0].username}`); }}
-          >
-            @{owner?.[0]?.username}
-          </span>
+          <span style={styles.ownerName}>{(Array.isArray(owner) ? owner?.[0]?.fullName : owner?.fullName) || 'Unknown'}</span>
           <span style={styles.subscribers}>{subCount} subscribers</span>
         </div>
         <button
@@ -365,8 +373,6 @@ const VideoPlayerPage = () => {
           </>
         )}
       </div>
-
-      {/* Description */}
       <div style={styles.descriptionWrapper}>
         <p style={styles.description}>{displayDesc}</p>
         {description.length > 200 && (
@@ -375,13 +381,11 @@ const VideoPlayerPage = () => {
           </button>
         )}
       </div>
-
-      {/* Comments Section */}
       <h3 style={styles.commentHeading}>{comments.length} Comments</h3>
       {!isOwner && (
         <div style={styles.addCommentRow}>
           <img
-            src={currentUser?.avatar?.url || owner?.[0]?.avatar?.url || ''}
+            src={currentUser?.avatar?.url || (Array.isArray(owner) ? owner?.[0]?.avatar?.url : owner?.avatar?.url) || ''}
             alt="avatar"
             style={styles.commentAvatar}
           />
@@ -419,7 +423,7 @@ const styles = {
     padding: 16,
     color: '#fff',
     position: 'relative',
-    overflow: 'visible', // allow decorative images to overflow horizontally
+    overflow: 'visible',
   },
   videoContainer: {
     position: 'relative',
@@ -435,8 +439,6 @@ const styles = {
     height: 'auto',
     borderRadius: 12,
   },
-  // seekBar style removed
-  // fullscreenBtn style removed
   title: {
     marginTop: 16,
     fontSize: 20,
@@ -577,10 +579,6 @@ const styles = {
     color: '#aaa',
     fontSize: 14,
   },
-  // sideImage style removed
-  clickable: {
-    cursor: 'pointer',
-  },
 };
 
-export default VideoPlayerPage; 
+export default VideoPlayer; 

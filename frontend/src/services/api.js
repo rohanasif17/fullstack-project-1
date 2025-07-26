@@ -5,9 +5,61 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Add request interceptor for debugging
+api.interceptors.request.use(
+  (config) => {
+    console.log('API Request:', config.method?.toUpperCase(), config.url);
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for debugging and token refresh
+api.interceptors.response.use(
+  (response) => {
+    console.log('API Response:', response.status, response.config.url);
+    return response;
+  },
+  async (error) => {
+    console.log('API Error:', error.response?.status, error.config?.url);
+    const originalRequest = error.config;
+
+    // If the error is 401 and we haven't already tried to refresh the token
+    // Only attempt refresh for non-refresh-token requests to avoid infinite loops
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/refresh-token')) {
+      originalRequest._retry = true;
+
+      try {
+        // Try to refresh the token
+        const response = await axios.post(
+          'http://localhost:8000/api/v1/users/refresh-token',
+          {},
+          { withCredentials: true }
+        );
+
+        // If refresh was successful, retry the original request
+        if (response.status === 200) {
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        // If refresh failed, don't redirect automatically
+        // Let the calling component handle the error
+        console.log('Token refresh failed:', refreshError.response?.status);
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default api;
 
 export const logout = () => api.post('/users/logout');
+
+export const refreshToken = () => api.post('/users/refresh-token');
 
 export const getVideos = (params = {}) => api.get('/videos', { params });
 
@@ -64,3 +116,16 @@ export const getUserTweets = (userId) => api.get(`/tweets/user/${userId}`);
 
 // Fetch current user's videos for dashboard
 export const getDashboardVideos = () => api.get('/dashboard/videos');
+
+// Get user channel profile by username
+export const getUserByUsername = (username) => api.get(`/users/c/${username}`);
+
+// Playlist APIs
+export const getCurrentUserPlaylists = () => api.get('/playlist/user');
+export const getUserPlaylists = (userId) => api.get(`/playlist/user/${userId}`);
+export const createPlaylist = (name, description) => api.post('/playlist', { name, description });
+export const getPlaylistById = (playlistId) => api.get(`/playlist/${playlistId}`);
+export const updatePlaylist = (playlistId, name, description) => api.patch(`/playlist/${playlistId}`, { name, description });
+export const deletePlaylist = (playlistId) => api.delete(`/playlist/${playlistId}`);
+export const addVideoToPlaylist = (videoId, playlistId) => api.patch(`/playlist/add/${videoId}/${playlistId}`);
+export const removeVideoFromPlaylist = (videoId, playlistId) => api.patch(`/playlist/remove/${videoId}/${playlistId}`);
