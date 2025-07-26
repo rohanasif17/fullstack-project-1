@@ -10,21 +10,11 @@ import { videoCategories } from "../constants.js"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, userId, category } = req.query;
+    const { page = 1, limit = 10, userId, category } = req.query;
 
     const pipeline = [];
 
-    if (query) {
-        pipeline.push({
-            $search: {
-                index: "search-videos",
-                text: {
-                    query: query,
-                    path: ["title", "description"]
-                }
-            }
-        });
-    }
+    // Removed search query handling
 
     if (userId) {
         if (!isValidObjectId(userId)) {
