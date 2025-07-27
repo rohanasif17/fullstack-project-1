@@ -63,6 +63,8 @@ export const refreshToken = () => api.post('/users/refresh-token');
 
 export const getVideos = (params = {}) => api.get('/videos', { params });
 
+export const getCategories = () => api.get('/videos/categories');
+
 // Verify JWT and fetch current user details
 export const getCurrentUser = () => api.get('/users/current-user');
 

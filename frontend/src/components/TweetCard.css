@@ -41,6 +41,12 @@
   font-size: 0.95rem;
 }
 
+.tweet-card-time {
+  color: #888;
+  font-size: 0.85rem;
+  margin-left: auto;
+}
+
 .tweet-card-content {
   color: #eaeaea;
   font-size: 1rem;

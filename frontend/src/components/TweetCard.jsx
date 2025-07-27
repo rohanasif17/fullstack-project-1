@@ -3,8 +3,8 @@ import './TweetCard.css';
 
 const TweetCard = ({ tweet, onLike, currentUser, onUpdate, onDelete }) => {
   if (!tweet) return null;
-  const { user, content, likes = 0, likedByMe = false, _id } = tweet;
-  const isOwner = currentUser?._id && tweet?.user?._id === currentUser._id;
+  const { owner, content, likesCount = 0, isLiked = false, _id } = tweet;
+  const isOwner = currentUser?._id && tweet?.owner?._id === currentUser._id;
   const [isHovered, setIsHovered] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const menuRef = useRef(null);
@@ -31,23 +31,28 @@ const TweetCard = ({ tweet, onLike, currentUser, onUpdate, onDelete }) => {
     >
       <img
         className="tweet-card-avatar"
-        src={user?.avatar?.url || '/assets/default-avatar.png'}
-        alt={user?.fullName || 'Avatar'}
+        src={owner?.avatar?.url || '/assets/default-avatar.png'}
+        alt={owner?.fullName || 'Avatar'}
       />
       <div className="tweet-card-body">
         <div className="tweet-card-header">
-          <span className="tweet-card-name">{user?.fullName}</span>
-          <span className="tweet-card-username">@{user?.username}</span>
+          <span className="tweet-card-name">{owner?.fullName}</span>
+          <span className="tweet-card-username">@{owner?.username}</span>
+          {tweet.createdAt && (
+            <span className="tweet-card-time">
+              {new Date(tweet.createdAt).toLocaleDateString()}
+            </span>
+          )}
         </div>
         <div className="tweet-card-content">{content}</div>
         <button
-          className={`tweet-card-like${likedByMe ? ' liked' : ''}`}
+          className={`tweet-card-like${isLiked ? ' liked' : ''}`}
           onClick={() => onLike && onLike(tweet)}
           aria-label="Like tweet"
           disabled={isOwner}
           title={isOwner ? "You can't like your own tweet" : "Like tweet"}
         >
-          <span role="img" aria-label="like">❤️</span> {likes}
+          <span role="img" aria-label="like">❤️</span> {likesCount}
         </button>
       </div>
       {isOwner && (isHovered || showActions) && (

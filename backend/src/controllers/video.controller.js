@@ -8,6 +8,11 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 import {uploadOnCloudinary, deleteFromCloudinary, extractPublicId} from "../utils/cloudinary.js"
 import { videoCategories } from "../constants.js"
 
+const getCategories = asyncHandler(async (req, res) => {
+    return res
+        .status(200)
+        .json(new ApiResponse(200, videoCategories, "Categories fetched successfully"));
+});
 
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, userId, category } = req.query;
@@ -453,6 +458,7 @@ export const searchVideos = asyncHandler(async (req, res) => {
 });
 
 export {
+    getCategories,
     getAllVideos,
     publishAVideo,
     getVideoById,

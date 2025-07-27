@@ -6,16 +6,16 @@ import Alert from 'react-bootstrap/Alert';
 import { publishVideo } from '../services/api';
 
 const videoCategories = [
-  "📚 Education",
-  "🎮 Gaming",
-  "🎵 Music",
-  "🤳 Vlogs",
-  "💻 Tech",
-  "🍿 Entertainment",
-  "📰 News",
-  "⚽ Sports",
-  "😂 Comedy",
-  "💄 Beauty & Fashion"
+  "Education",
+  "Gaming",
+  "Music",
+  "Vlogs",
+  "Tech",
+  "Entertainment",
+  "News",
+  "Sports",
+  "Comedy",
+  "Beauty & Fashion"
 ];
 
 const PublishVideoPage = () => {

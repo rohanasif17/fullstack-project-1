@@ -101,6 +101,11 @@ const VideoCard = ({ video, small, active, disableNavigation }) => {
                 <span className="video-card-dot">•</span>
                 <span className="video-card-time">{timeAgo(createdAt)}</span>
               </div>
+              {category && (
+                <div className="video-card-category">
+                  {category}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -135,6 +140,11 @@ const VideoCard = ({ video, small, active, disableNavigation }) => {
                 <span className="video-card-dot">•</span>
                 <span className="video-card-time">{timeAgo(createdAt)}</span>
               </div>
+              {category && (
+                <div className="video-card-category">
+                  {category}
+                </div>
+              )}
             </div>
           </div>
         </Link>

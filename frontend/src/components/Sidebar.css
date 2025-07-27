@@ -3,36 +3,36 @@
   top: 0;
   left: 0;
   height: 100vh;
-  background: #181818;
+  background: #0f0f0f;
   color: #fff;
-  z-index: 1002; /* Sidebar is above overlay */
+  z-index: 1002;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.15);
-  transition: width 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s;
-  width: 220px;
-  min-width: 60px;
+  width: 240px;
+  min-width: 72px;
 }
 
 .sidebar.collapsed {
-  width: 60px;
+  width: 72px;
 }
 
 .sidebar.open {
-  width: 220px;
+  width: 240px;
 }
 
 .sidebar-toggle {
   background: none;
   border: none;
   color: inherit;
-  font-size: 2rem;
-  padding: 1rem 0.5rem;
+  font-size: 1.5rem;
+  padding: 1rem;
   cursor: pointer;
   outline: none;
-  align-self: flex-end;
-  transition: color 0.2s;
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidebar-hamburger {
@@ -46,22 +46,35 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0;
 }
 
 .sidebar-tab {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
   padding: 0.75rem 1rem;
   cursor: pointer;
-  border-radius: 8px;
-  transition: background 0.2s;
+  border-radius: 10px;
+  margin: 0 0.5rem;
   position: relative;
 }
 
+.sidebar.collapsed .sidebar-tab {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 0.25rem;
+  margin: 0 0.25rem;
+}
+
 .sidebar-tab.active, .sidebar-tab:hover {
-  background: #232323;
+  background: #272727;
+}
+
+.sidebar-tab.active {
+  background: #272727;
+  font-weight: 500;
 }
 
 .sidebar-icon {
@@ -69,35 +82,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.sidebar-icon svg {
+  width: 100%;
+  height: 100%;
+  color: currentColor;
 }
 
 .sidebar-label {
-  font-size: 1rem;
+  font-size: 0.9rem;
   white-space: nowrap;
-  transition: opacity 0.2s;
+  font-weight: 400;
 }
 
 .sidebar.collapsed .sidebar-label {
-  display: none;
-}
-
-/* Tooltip for collapsed state */
-.sidebar.collapsed .sidebar-tab[title]:hover::after {
-  content: attr(title);
-  position: absolute;
-  left: 110%;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #232323;
-  color: #fff;
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
-  font-size: 0.95rem;
+  font-size: 0.7rem;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  opacity: 1;
-  pointer-events: none;
-  z-index: 1003;
 }
 
 .sidebar-content {
@@ -112,17 +120,51 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.45); /* Slightly darker for more dull effect */
-  z-index: 1001; /* Below sidebar */
+  background: rgba(0,0,0,0.45);
+  z-index: 1001;
   pointer-events: auto;
-  transition: opacity 0.3s;
   opacity: 1;
   cursor: pointer;
-  backdrop-filter: blur(2px); /* Modern dull effect */
+  backdrop-filter: blur(2px);
 }
 
 /* Hide overlay when sidebar is closed (handled by React, but for safety) */
 .sidebar-overlay:not(:has(~ .sidebar.open)) {
   opacity: 0;
   pointer-events: none;
+}
+
+/* Add separator line */
+.sidebar-separator {
+  height: 1px;
+  background: #3f3f3f;
+  margin: 0.5rem 1rem;
+}
+
+.sidebar.collapsed .sidebar-separator {
+  margin: 0.5rem 0.25rem;
+}
+
+/* Section header */
+.sidebar-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #aaa;
+}
+
+.sidebar.collapsed .sidebar-section-header {
+  padding: 0.75rem 0.25rem;
+  justify-content: center;
+}
+
+.sidebar-section-header .section-arrow {
+  font-size: 0.8rem;
+}
+
+.sidebar.collapsed .sidebar-section-header .section-arrow {
+  display: none;
 } 

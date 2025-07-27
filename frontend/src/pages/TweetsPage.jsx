@@ -17,7 +17,7 @@ const TweetsPage = () => {
     setLoading(true);
     setError(null);
     getAllTweets()
-      .then(res => setTweets(res.data?.data || []))
+      .then(res => setTweets(res.data?.data?.docs || []))
       .catch(() => setError('Failed to load tweets'))
       .finally(() => setLoading(false));
     // Fetch current user
@@ -33,8 +33,8 @@ const TweetsPage = () => {
         t._id === tweet._id
           ? {
               ...t,
-              likes: t.likedByMe ? t.likes - 1 : t.likes + 1,
-              likedByMe: !t.likedByMe,
+              likesCount: t.isLiked ? t.likesCount - 1 : t.likesCount + 1,
+              isLiked: !t.isLiked,
             }
           : t
       )
@@ -50,8 +50,8 @@ const TweetsPage = () => {
           t._id === tweet._id
             ? {
                 ...t,
-                likes: t.likedByMe ? t.likes + 1 : t.likes - 1, // revert
-                likedByMe: !t.likedByMe, // revert
+                likesCount: t.isLiked ? t.likesCount + 1 : t.likesCount - 1, // revert
+                isLiked: !t.isLiked, // revert
               }
             : t
         )
@@ -69,11 +69,13 @@ const TweetsPage = () => {
       // Inject user info for optimistic UI
       setTweets((prev) => [{
         ...newTweet,
-        user: currentUser ? {
+        owner: currentUser ? {
           avatar: currentUser.avatar,
           fullName: currentUser.fullName,
           username: currentUser.username
-        } : undefined
+        } : undefined,
+        likesCount: 0,
+        isLiked: false
       }, ...prev]);
       setTweetText("");
     } catch (err) {

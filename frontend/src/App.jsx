@@ -22,7 +22,6 @@ import DashboardPage from './pages/DashboardPage';
 import UserProfilePage from './pages/UserProfilePage';
 import PlaylistsPage from './pages/PlaylistsPage';
 import PlaylistDetailPage from './pages/PlaylistDetailPage';
-import SearchComponent from './components/SearchComponent.jsx';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -65,7 +64,6 @@ function App() {
     const showUserDropdown = isAuthenticated && location.pathname === '/homepage';
     // Show sidebar on main app pages (not login/register/landing)
     const showSidebar = !['/', '/login', '/register'].includes(location.pathname);
-    const showSearchBar = !['/', '/login', '/register'].includes(location.pathname);
     const [sidebarTab, setSidebarTab] = useState('history');
     // Sidebar open/collapsed state lifted up
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -73,17 +71,20 @@ function App() {
     return (
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         {showSidebar && (
-          <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+          <Sidebar 
+            isOpen={sidebarOpen} 
+            setIsOpen={setSidebarOpen}
+            activeTab={sidebarTab}
+            setActiveTab={setSidebarTab}
+          />
         )}
         <div
           style={{
             flex: 1,
             position: 'relative',
-            marginLeft: showSidebar && !sidebarOpen ? 60 : 0, // 60px margin when sidebar is collapsed
-            transition: 'margin-left 0.3s cubic-bezier(0.4,0,0.2,1)',
+            marginLeft: showSidebar ? (sidebarOpen ? 240 : 72) : 0, // Adjust margin based on sidebar state
           }}
         >
-          {showSearchBar && <SearchComponent />}
           {showUserDropdown && (
             <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 1100 }}>
               <UserAvatarDropdown

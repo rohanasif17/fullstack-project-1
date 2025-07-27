@@ -1,0 +1,58 @@
+.category-filter-container {
+  width: 100%;
+  padding: 16px 24px 0 24px;
+  background-color: #0f0f0f;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.category-filter-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  padding-bottom: 8px;
+}
+
+.category-filter-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.category-filter-button {
+  background-color: #272727;
+  color: #f1f1f1;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  min-width: fit-content;
+}
+
+.category-filter-button:hover {
+  background-color: #3d3d3d;
+}
+
+.category-filter-active {
+  background-color: #f1f1f1 !important;
+  color: #0f0f0f !important;
+}
+
+.category-filter-active:hover {
+  background-color: #e5e5e5 !important;
+}
+
+.category-filter-loading {
+  color: #888;
+  font-size: 14px;
+  padding: 8px 16px;
+  background-color: #272727;
+  border-radius: 8px;
+  white-space: nowrap;
+} 

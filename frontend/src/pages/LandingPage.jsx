@@ -122,7 +122,7 @@ const styles = {
     color: '#fff',           // Default text color white
     padding: '0 5vw',
     boxSizing: 'border-box',
-    overflow: 'visible',     // allow decorative images to extend beyond wrapper
+    overflow: 'hidden',     // prevent scrolling while keeping images visible
   },
   left: {
     flex: 1,

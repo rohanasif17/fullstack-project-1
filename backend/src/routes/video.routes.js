@@ -7,15 +7,17 @@ import {
     togglePublishStatus,
     updateVideo,
     addView,
-    searchVideos
+    searchVideos,
+    getCategories
 } from "../controllers/video.controller.js"
 import {verifyJWT} from "../middlewares/auth.middleware.js"
 import {upload} from "../middlewares/multer.middleware.js"
 
 const router = Router();
 
-// Public search route
+// Public routes
 router.get('/search', searchVideos);
+router.get('/categories', getCategories);
 
 router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 
