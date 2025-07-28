@@ -88,17 +88,20 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     </svg>
                   )
                 ) : tab.icon === 'home-lordicon' ? (
-                  <lord-icon
-                    key="home-lordicon"
-                    src="https://cdn.lordicon.com/jeuxydnh.json"
-                    stroke="bold"
-                    colors="primary:#ffffff,secondary:#ffffff"
-                    style={{ width: '1.5rem', height: '1.5rem' }}
-                  />
+                  isActiveTab(tab) ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff" className="size-6">
+                      <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" />
+                      <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.432Z" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                    </svg>
+                  )
                 ) : tab.icon === 'history-svg' ? (
                   isActiveTab(tab) ? (
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff" className="size-6">
-                      <path d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                      <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 0 0 0-1.5h-3.75V6Z" clipRule="evenodd" />
                     </svg>
                   ) : (
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -126,13 +129,19 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     </svg>
                   )
                 ) : tab.icon === 'tweets-lordicon' ? (
-                  <lord-icon
-                    key="tweets-lordicon"
-                    src="https://cdn.lordicon.com/wlbymhoo.json"
-                     stroke="bold"
-                    colors="primary:#ffffff,secondary:#ffffff"
-                    style={{ width: '1.5rem', height: '1.5rem' }}
-                  />
+                  isActiveTab(tab) ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff" className="size-6">
+                      <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                    </svg>
+                  ) : (
+                    <lord-icon
+                      key="tweets-lordicon"
+                      src="https://cdn.lordicon.com/wlbymhoo.json"
+                       stroke="bold"
+                      colors="primary:#ffffff,secondary:#ffffff"
+                      style={{ width: '1.5rem', height: '1.5rem' }}
+                    />
+                  )
                 ) : null}
               </span>
               <span className="sidebar-label">{tab.label}</span>

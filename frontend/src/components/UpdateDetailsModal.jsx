@@ -45,10 +45,14 @@ const UpdateDetailsModal = ({ show, onHide }) => {
     }
   };
 
-  const handleShow = () => {
-    setShow(true);
-    populateUserDetails();
-  };
+
+
+  // Load user details when modal opens
+  useEffect(() => {
+    if (show) {
+      populateUserDetails();
+    }
+  }, [show]);
 
   // Auto-hide error after 2 seconds
   useEffect(() => {

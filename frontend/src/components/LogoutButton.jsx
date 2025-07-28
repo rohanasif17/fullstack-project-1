@@ -13,7 +13,7 @@ function LogoutButton() {
     setError(null);
     try {
       await logout();
-      navigate('/login');
+      navigate('/');
     } catch (err) {
       setError('Logout failed. Please try again.');
     } finally {

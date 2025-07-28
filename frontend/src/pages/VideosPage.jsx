@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import VideoCard from '../components/VideoCard';
 import CategoryFilter from '../components/CategoryFilter';
 import { getVideos, getCurrentUser } from '../services/api';
@@ -17,7 +17,7 @@ const VideosPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const navigate = useNavigate();
 
-  const fetchVideos = async (category = 'All') => {
+  const fetchVideos = useCallback(async (category = 'All') => {
     try {
       setLoading(true);
       
@@ -69,7 +69,7 @@ const VideosPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
@@ -78,7 +78,7 @@ const VideosPage = () => {
 
   useEffect(() => {
     fetchVideos('All');
-  }, [navigate]);
+  }, [fetchVideos]);
 
   if (loading) {
     // Show nothing or a simple loading message while videos are loading
