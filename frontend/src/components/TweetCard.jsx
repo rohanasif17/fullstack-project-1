@@ -22,6 +22,26 @@ const TweetCard = ({ tweet, onLike, currentUser, onUpdate, onDelete }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showActions]);
 
+  const timeAgo = (dateString) => {
+    if (!dateString) return '';
+    const seconds = Math.floor((Date.now() - new Date(dateString)) / 1000);
+    const intervals = [
+      { label: 'year', secs: 31536000 },
+      { label: 'month', secs: 2592000 },
+      { label: 'week', secs: 604800 },
+      { label: 'day', secs: 86400 },
+      { label: 'hour', secs: 3600 },
+      { label: 'minute', secs: 60 },
+    ];
+    for (const interval of intervals) {
+      const count = Math.floor(seconds / interval.secs);
+      if (count >= 1) {
+        return `${count} ${interval.label}${count > 1 ? 's' : ''} ago`;
+      }
+    }
+    return 'Just now';
+  };
+
   return (
     <div
       className="tweet-card"
@@ -40,7 +60,7 @@ const TweetCard = ({ tweet, onLike, currentUser, onUpdate, onDelete }) => {
           <span className="tweet-card-username">@{owner?.username}</span>
           {tweet.createdAt && (
             <span className="tweet-card-time">
-              {new Date(tweet.createdAt).toLocaleDateString()}
+              {timeAgo(tweet.createdAt)}
             </span>
           )}
         </div>
