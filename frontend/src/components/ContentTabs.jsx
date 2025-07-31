@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import VideoCard from './VideoCard';
 import TweetCard from './TweetCard';
 import PlaylistCard from './PlaylistCard';
+import UpdateVideoModal from './UpdateVideoModal';
+import ConfirmDeleteModal from './ConfirmDeleteModal';
 import { 
   getDashboardVideos, 
   getUserVideos, 
@@ -10,7 +12,8 @@ import {
   getCurrentUserPlaylists, 
   getUserPlaylists, 
   toggleTweetLike, 
-  getCurrentUser 
+  getCurrentUser, 
+  deleteVideo 
 } from '../services/api';
 
 const ContentTabs = ({ userId, isOwnProfile = false, currentUser: propCurrentUser }) => {
@@ -22,6 +25,10 @@ const ContentTabs = ({ userId, isOwnProfile = false, currentUser: propCurrentUse
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [videoToDelete, setVideoToDelete] = useState(null);
 
   // Reset state when userId changes
   useEffect(() => {
@@ -67,7 +74,8 @@ const ContentTabs = ({ userId, isOwnProfile = false, currentUser: propCurrentUse
         const tweetsData = Array.isArray(tweetsRes.data?.data) ? tweetsRes.data.data : [];
         const playlistsData = Array.isArray(playlistsRes.data?.data) ? playlistsRes.data.data : [];
 
-        setVideos(videosData);
+        // Mark videos as owned by current user if isOwnProfile
+        setVideos(videosData.map(v => isOwnProfile ? { ...v, isOwner: true } : v));
         setTweets(tweetsData);
         setPlaylists(playlistsData);
         setCurrentUser(currentUserRes.data?.data || propCurrentUser);
@@ -114,6 +122,28 @@ const ContentTabs = ({ userId, isOwnProfile = false, currentUser: propCurrentUse
   const handlePlaylistDelete = (playlist) => {
     // This would need to be implemented with the actual delete functionality
     console.log('Delete playlist:', playlist._id);
+  };
+
+  const handleEditVideo = (video) => {
+    setSelectedVideo(video);
+    setShowUpdateModal(true);
+  };
+
+  const handleDeleteVideo = (video) => {
+    setVideoToDelete(video);
+    setShowDeleteModal(true);
+  };
+  const confirmDeleteVideo = async () => {
+    if (!videoToDelete) return;
+    try {
+      await deleteVideo(videoToDelete._id);
+      setHasLoaded(false); // Refresh video list
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to delete video.');
+    } finally {
+      setShowDeleteModal(false);
+      setVideoToDelete(null);
+    }
   };
 
   const styles = {
@@ -277,7 +307,7 @@ const ContentTabs = ({ userId, isOwnProfile = false, currentUser: propCurrentUse
         return (
           <div style={styles.videosGrid}>
             {Array.isArray(videos) && videos.map((video) => (
-              <VideoCard key={video._id} video={video} small={true} />
+              <VideoCard key={video._id} video={video} small={true} onEdit={handleEditVideo} onDelete={handleDeleteVideo} />
             ))}
           </div>
         );
@@ -395,6 +425,20 @@ const ContentTabs = ({ userId, isOwnProfile = false, currentUser: propCurrentUse
       <div style={styles.content}>
         {renderContent()}
       </div>
+      <UpdateVideoModal
+        show={showUpdateModal}
+        onHide={() => setShowUpdateModal(false)}
+        video={selectedVideo}
+        onVideoUpdated={() => { setShowUpdateModal(false); setHasLoaded(false); }}
+      />
+      <ConfirmDeleteModal
+        show={showDeleteModal}
+        onCancel={() => { setShowDeleteModal(false); setVideoToDelete(null); }}
+        onConfirm={confirmDeleteVideo}
+        message="Are you sure you want to delete this video?"
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+      />
     </div>
   );
 };

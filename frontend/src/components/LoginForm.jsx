@@ -3,12 +3,57 @@ import api from '../services/api'
 import { useNavigate } from 'react-router-dom';
 import ErrorMessage from './ErrorMessage';
 
+// Decorative asset imports (located in frontend/assets)
+import controllerImg from '../../assets/controller.png';
+import comedyNightImg from '../../assets/comedy-night.png';
+import newspaperImg from '../../assets/newspaper.png';
+import headphonesImg from '../../assets/headphones.png';
+import pcImg from '../../assets/pc.png';
+import cameraImg from '../../assets/camera.png';
+import micImg from '../../assets/mic.png';
+import globeImg from '../../assets/globe.png';
+import phoneImg from '../../assets/phone.png';
+import singingImg from '../../assets/singing.png';
+import natureBookImg from '../../assets/nature-book.png';
+import uploadImg from '../../assets/upload.png';
+import websiteImg from '../../assets/website.png';
+
+// Function to shuffle array
+const shuffleArray = (array) => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
+// All available images with their properties
+const allImages = [
+  { src: micImg,         top: '3%',  left: '-40px', rotation:  -15, width: 95 },
+  { src: newspaperImg,   top: '10%', left: '30px',  rotation:   12, width: 110 },
+  { src: headphonesImg,  top: '23%', left: '-60px', rotation:   20, width: 120 },
+  { src: controllerImg,  top: '38%', left: '15px',  rotation:   -8, width: 100 },
+  { src: pcImg,          top: '55%', left: '-45px', rotation:   18, width: 118 },
+  { src: natureBookImg,  top: '70%', left: '25px',  rotation:  -12, width: 110 },
+  { src: globeImg,       top: '85%', left: '-35px', rotation:    6, width: 115 },
+  { src: comedyNightImg, top: '6%',  right: '-50px', rotation:  15, width: 115 },
+  { src: cameraImg,      top: '20%', right: '35px',  rotation: -20, width: 120 },
+  { src: phoneImg,       top: '34%', right: '-40px', rotation:  10, width: 105 },
+  { src: singingImg,     top: '50%', right: '10px',  rotation:  -6, width: 110 },
+  { src: uploadImg,      top: '66%', right: '-40px', rotation:  18, width: 115 },
+  { src: websiteImg,     top: '83%', right: '30px',  rotation: -14, width: 120 },
+];
+
 const LoginForm = ({ setIsAuthenticated }) => {
   const [formData, setFormData] = useState({ identifier: '', password: '' });
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState('')
   const [showError, setShowError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Shuffle images on component mount
+  const [shuffledImages] = useState(() => shuffleArray(allImages));
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -45,21 +90,39 @@ const LoginForm = ({ setIsAuthenticated }) => {
 
   return (
     <div style={styles.wrapper}>
+      {/* Decorative side images */}
+      {shuffledImages.map((img, idx) => (
+        <img
+          key={`login-${idx}`}
+          src={img.src}
+          alt="decorative"
+          style={{
+            ...styles.sideImage,
+            top: img.top,
+            left: img.left,
+            right: img.right,
+            width: img.width,
+            transform: `rotate(${img.rotation}deg)`,
+          }}
+        />
+      ))}
+
       <div style={styles.container}>
         <h2 style={styles.heading}>Login</h2>
-        <p style={styles.subheading}>Enter your credentials to access your account.</p>
         <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="identifier"
-            placeholder="Email or Username"
-            value={formData.identifier}
-            onChange={handleChange}
-            required
-            style={styles.input}
-          />
-          {/* Password input with show/hide button in a row */}
-          <div style={{ position: 'relative', marginBottom: '0.75rem' }}>
+          <div style={styles.inputContainer}>
+            <input
+              type="text"
+              name="identifier"
+              placeholder="Username"
+              value={formData.identifier}
+              onChange={handleChange}
+              required
+              style={styles.input}
+            />
+          </div>
+          
+          <div style={styles.inputContainer}>
             <input
               type={showPassword ? "text" : "password"}
               name="password"
@@ -67,29 +130,10 @@ const LoginForm = ({ setIsAuthenticated }) => {
               value={formData.password}
               onChange={handleChange}
               required
-              style={{ ...styles.input, paddingRight: '60px', marginBottom: 0 }}
+              style={styles.input}
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword((prev) => !prev)}
-              style={{
-                position: 'absolute',
-                right: '8px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                color: '#ccc',
-                fontWeight: 'bold',
-                fontSize: '14px',
-                cursor: 'pointer',
-                padding: 0,
-              }}
-              tabIndex={-1}
-            >
-              {showPassword ? 'Hide' : 'Show'}
-            </button>
           </div>
+          
           <button type="submit" style={styles.button}>Login</button>
         </form>
         <p style={styles.linkText}>Don't have an account? <a href="/register" style={styles.link}>Register</a></p>
@@ -102,62 +146,75 @@ const LoginForm = ({ setIsAuthenticated }) => {
 
 const styles = {
   wrapper: {
+    position: 'relative',
     height: '100vh',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#111'
+    backgroundColor: '#111',
+    overflow: 'hidden',
   },
   container: {
-    backgroundColor: '#1e1e1e',
-    padding: '2rem',
-    borderRadius: '8px',
-    width: '300px',
+    backdropFilter: 'blur(10px)',
+    padding: '2.5rem',
+    borderRadius: '12px',
+    width: '320px',
     color: 'white',
+    zIndex: 2,
+    border: '1px solid rgba(255, 255, 255, 0.2)',
   },
   heading: {
-    fontSize: '24px',
-    marginBottom: '0.5rem'
+    fontSize: '28px',
+    marginBottom: '1.5rem',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    color: 'white',
   },
-  subheading: {
-    fontSize: '14px',
+  inputContainer: {
+    position: 'relative',
     marginBottom: '1rem',
-    color: '#ccc'
   },
   input: {
     width: '100%',
-    padding: '0.5rem',
-    marginBottom: '0.75rem',
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: '#333',
-    color: 'white'
+    padding: '0.75rem',
+    borderRadius: '8px',
+    border: '1px solid white',
+    backgroundColor: 'transparent',
+    color: 'white',
+    fontSize: '16px',
+    boxSizing: 'border-box',
   },
   button: {
     width: '100%',
-    padding: '0.5rem',
-    backgroundColor: '#fff',
-    border: '2px solid #111',
-    borderRadius: '4px',
+    padding: '0.75rem',
+    backgroundColor: 'white',
+    border: 'none',
+    borderRadius: '8px',
     color: '#111',
     cursor: 'pointer',
     fontWeight: 'bold',
-    transition: 'background 0.2s, box-shadow 0.2s, color 0.2s',
+    fontSize: '16px',
+    marginBottom: '1rem',
+    transition: 'background-color 0.2s',
   },
   linkText: {
     textAlign: 'center',
-    marginTop: '1rem',
-    fontSize: '14px'
+    fontSize: '14px',
+    color: 'white',
   },
   link: {
-    color: '#fff',
+    color: 'white',
     textDecoration: 'none',
-    borderBottom: '1px solid #fff',
     fontWeight: 'bold',
-    paddingBottom: '2px',
-    transition: 'color 0.2s',
-  }
+  },
+  // Base style shared by all side images
+  sideImage: {
+    position: 'absolute',
+    zIndex: 1,
+    pointerEvents: 'none',
+    userSelect: 'none',
+  },
 };
 
 export default LoginForm

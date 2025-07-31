@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './VideoCard.css';
 import AddToPlaylistModal from './AddToPlaylistModal';
 
-const VideoCard = ({ video, small, active, disableNavigation }) => {
+const VideoCard = ({ video, small, active, disableNavigation, onEdit, onDelete }) => {
   const navigate = useNavigate();
   const [showAddToPlaylist, setShowAddToPlaylist] = useState(false);
   
@@ -158,6 +158,27 @@ const VideoCard = ({ video, small, active, disableNavigation }) => {
       >
         📁
       </button>
+
+      {video.isOwner && (
+        <>
+          <button
+            className="video-card-edit-btn"
+            onClick={(e) => { e.stopPropagation(); e.preventDefault(); onEdit && onEdit(video); }}
+            title="Edit Video"
+            style={{ marginLeft: 8, background: '#4fc3f7', color: '#111', border: 'none', borderRadius: 4, padding: '4px 10px', fontWeight: 'bold', cursor: 'pointer' }}
+          >
+            ✏️ Edit
+          </button>
+          <button
+            className="video-card-delete-btn"
+            onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDelete && onDelete(video); }}
+            title="Delete Video"
+            style={{ marginLeft: 8, background: '#ff4d4f', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', fontWeight: 'bold', cursor: 'pointer' }}
+          >
+            🗑️ Delete
+          </button>
+        </>
+      )}
 
       <AddToPlaylistModal
         show={showAddToPlaylist}

@@ -96,6 +96,15 @@ export const publishVideo = (formData) =>
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 
+// Update video
+export const updateVideo = (videoId, formData) =>
+  api.patch(`/videos/${videoId}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+// Delete video
+export const deleteVideo = (videoId) => api.delete(`/videos/${videoId}`);
+
 // Tweet APIs
 export const getAllTweets = () => api.get('/tweets');
 export const getUserHistory = () => api.get('/users/history');
