@@ -2,9 +2,9 @@
 
 _Seamless Experiences Powering Next-Gen Digital Interactions_
 
-![Last Commit](https://img.shields.io/github/last-commit/rohanasdf17/fullstack-project-1)
+![Last Commit](https://img.shields.io/github/last-commit/rohanasif17/fullstack-project-1)
 ![JavaScript](https://img.shields.io/badge/javascript-94.1%25-blue)
-![Languages](https://img.shields.io/github/languages/count/rohanasdf17/fullstack-project-1)
+![Languages](https://img.shields.io/github/languages/count/rohanasif17/fullstack-project-1)
 
 ## Built with the tools and technologies:
 
