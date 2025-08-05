@@ -2,9 +2,9 @@
 
 _Seamless Experiences Powering Next-Gen Digital Interactions_
 
-![last commit](https://img.shields.io/github/last-commit/rohanasif7/fullstack-project-1?style=flat) 
-![language](https://img.shields.io/github/languages/top/rohanasif7/fullstack-project-1?style=flat) 
-![languages count](https://img.shields.io/github/languages/count/rohanasif7/fullstack-project-1?style=flat)
+![Last Commit](https://img.shields.io/github/last-commit/rohanasdf17/fullstack-project-1)
+![JavaScript](https://img.shields.io/badge/javascript-94.1%25-blue)
+![Languages](https://img.shields.io/github/languages/count/rohanasdf17/fullstack-project-1)
 
 ## Built with the tools and technologies:
 
@@ -34,7 +34,6 @@ _Seamless Experiences Powering Next-Gen Digital Interactions_
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Usage](#usage)
-  - [Testing](#testing)
 
 ---
 
@@ -90,15 +89,8 @@ Build fullstack-project-1 from the source and install dependencies:
 Run the project with:
 
 ```bash
-npm start
+npm start dev
 ```
 
 ---
 
-## Testing
-
-Fullstack-project-1 uses the **test_framework** test framework. Run the test suite with:
-
-```bash
-npm test
-```
