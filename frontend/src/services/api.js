@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://YOUR-BACKEND-URL.onrender.com/api/v1', 
-  withCredentials: true,
+    baseURL: import.meta.env.API_URL || 'http://localhost:5000',
+    withCredentials: true,
 });
 
 // Add request interceptor for debugging
@@ -33,11 +33,11 @@ api.interceptors.response.use(
 
       try {
         // Try to refresh the token
-        const response = await axios.post(
-          'https://YOUR-BACKEND-URL.onrender.com/api/v1/users/refresh-token',
-          {},
-          { withCredentials: true }
-        );
+      const response = await axios.post(
+  `${import.meta.env.VITE_API_URL}/api/v1/users/refresh-token`,
+  {},
+  { withCredentials: true }
+);
 
         // If refresh was successful, retry the original request
         if (response.status === 200) {
