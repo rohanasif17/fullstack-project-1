@@ -12,7 +12,7 @@ import ChangePasswordModal from './components/ChangePasswordModal';
 import UpdateDetailsModal from './components/UpdateDetailsModal';
 import ChangeAvatarModal from './components/ChangeAvatarModal';
 import ChangeCoverImageModal from './components/ChangeCoverImageModal';
-import { getCurrentUser } from './services/api';
+import { getCurrentUser, refreshToken } from './services/api';
 import UserAvatarPopover from './components/UserAvatarPopover';
 import Sidebar from './components/Sidebar';
 import TweetsPage from './pages/TweetsPage';
@@ -104,8 +104,6 @@ const AppContent = ({
           <Route path="/playlist/:playlistId" element={<PlaylistDetailPage />} />
           <Route path="/v/:id" element={<VideoPlayerPage />} />
           <Route path="/publishvideo" element={<PublishVideoPage />} />
-          {/* Alias so /upload also opens the publish video page */}
-          <Route path="/upload" element={<Navigate to="/publishvideo" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/users/c/:username" element={<UserProfilePage />} />
           {/* Catch-all: send any unknown URL back to the landing page instead of a blank screen */}
@@ -133,13 +131,23 @@ function App() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // The axios interceptor already attempts a token refresh on a 401,
-        // so a single call is enough — no need to refresh again here.
         await getCurrentUser();
         setIsAuthenticated(true);
       } catch (error) {
-        // A 401 here just means there's no valid session (logged out) — expected.
-        setIsAuthenticated(false);
+        // If getCurrentUser fails, try to refresh the token
+        if (error.response?.status === 401) {
+          try {
+            await refreshToken();
+            // Token refreshed successfully, try getCurrentUser again
+            await getCurrentUser();
+            setIsAuthenticated(true);
+          } catch (refreshError) {
+            // If refresh also fails, user is not authenticated
+            setIsAuthenticated(false);
+          }
+        } else {
+          setIsAuthenticated(false);
+        }
       }
     };
 
