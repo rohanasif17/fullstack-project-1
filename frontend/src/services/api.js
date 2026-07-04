@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: import.meta.env.API_URL || 'http://localhost:5000',
+    baseURL: import.meta.env.API_URL || 'https://fullstack-project-1.up.railway.app/api/v1' || 'http://localhost:5000',
     withCredentials: true,
 });
 
@@ -34,7 +34,7 @@ api.interceptors.response.use(
       try {
         // Try to refresh the token
       const response = await axios.post(
-  `${import.meta.env.VITE_API_URL}/api/v1/users/refresh-token`,
+ 'https://fullstack-project-1.up.railway.app/api/v1/users/refresh-token',
   {},
   { withCredentials: true }
 );
