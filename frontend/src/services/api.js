@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/v1', 
-  withCredentials: true,
+    baseURL: import.meta.env.API_URL || 'https://fullstack-project-1.up.railway.app/api/v1' || 'http://localhost:5000',
+    withCredentials: true,
 });
 
 // Add request interceptor for debugging
@@ -33,11 +33,11 @@ api.interceptors.response.use(
 
       try {
         // Try to refresh the token
-        const response = await axios.post(
-          'http://localhost:8000/api/v1/users/refresh-token',
-          {},
-          { withCredentials: true }
-        );
+      const response = await axios.post(
+ 'https://fullstack-project-1.up.railway.app/api/v1/users/refresh-token',
+  {},
+  { withCredentials: true }
+);
 
         // If refresh was successful, retry the original request
         if (response.status === 200) {
