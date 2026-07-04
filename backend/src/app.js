@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser"
 const app = express()
 
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: ["https://tubeclone1.netlify.app", "http://localhost:5173", "http://localhost:3000"],
     credentials: true
 }))
 
