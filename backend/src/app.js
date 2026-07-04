@@ -5,8 +5,15 @@ import cookieParser from "cookie-parser"
 const app = express()
 
 app.use(cors({
-    origin: ["https://tubeclone1.netlify.app", "http://localhost:5173", "http://localhost:3000"],
-    credentials: true
+    origin: [
+        "https://tubeclone1.netlify.app",
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:5000"
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
 }))
 
 app.use(express.json({limit: "16kb"}))
