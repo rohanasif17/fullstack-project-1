@@ -4,8 +4,24 @@ import cookieParser from "cookie-parser"
 
 const app = express()
 
+// Allowed frontend origins, read from CORS_ORIGIN (comma-separated for multiple).
+// Trailing slashes are stripped so "https://site.app/" and "https://site.app" both match.
+const allowedOrigins = (process.env.CORS_ORIGIN || "")
+    .split(",")
+    .map((origin) => origin.trim().replace(/\/$/, ""))
+    .filter(Boolean)
+
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: function (origin, callback) {
+        // Allow non-browser requests (curl, server-to-server) that send no Origin.
+        if (!origin) return callback(null, true)
+
+        const normalizedOrigin = origin.replace(/\/$/, "")
+        if (allowedOrigins.includes(normalizedOrigin)) {
+            return callback(null, true)
+        }
+        return callback(new Error(`Not allowed by CORS: ${origin}`))
+    },
     credentials: true
 }))
 

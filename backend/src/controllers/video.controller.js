@@ -2,6 +2,7 @@ import mongoose, {isValidObjectId} from "mongoose"
 import {Video} from "../models/video.model.js"
 import {User} from "../models/user.model.js"
 import {Like} from "../models/like.model.js"
+import {Comment} from "../models/comment.model.js"
 import ApiError from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
@@ -326,12 +327,23 @@ const deleteVideo = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Failed to delete video");
     }
 
+    // Remove likes on the video itself
     await Like.deleteMany({ video: videoId });
+
+    // Remove comments on the video, plus any likes on those comments
+    const comments = await Comment.find({ video: videoId }).select("_id");
+    const commentIds = comments.map((comment) => comment._id);
+    if (commentIds.length) {
+        await Like.deleteMany({ comment: { $in: commentIds } });
+    }
+    await Comment.deleteMany({ video: videoId });
+
+    // Remove the video from every user's watch history
     await User.updateMany(
         { watchHistory: videoId },
         { $pull: { watchHistory: videoId } }
     );
-    
+
 
     return res
         .status(200)

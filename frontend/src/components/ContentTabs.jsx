@@ -297,7 +297,7 @@ const ContentTabs = ({ userId, isOwnProfile = false, currentUser: propCurrentUse
                 }
               </div>
               {isOwnProfile && (
-                <Link to="/publish" style={{ marginTop: 16, color: '#4fc3f7', textDecoration: 'none' }}>
+                <Link to="/publishvideo" style={{ marginTop: 16, color: '#4fc3f7', textDecoration: 'none' }}>
                   Upload Video
                 </Link>
               )}
