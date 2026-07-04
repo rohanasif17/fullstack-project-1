@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import api from '../services/api'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import ErrorMessage from './ErrorMessage';
 
 // Decorative asset imports (located in frontend/assets)
@@ -136,7 +136,7 @@ const LoginForm = ({ setIsAuthenticated }) => {
           
           <button type="submit" style={styles.button}>Login</button>
         </form>
-        <p style={styles.linkText}>Don't have an account? <a href="/register" style={styles.link}>Register</a></p>
+        <p style={styles.linkText}>Don't have an account? <Link to="/register" style={styles.link}>Register</Link></p>
         <ErrorMessage message={errorMsg} visible={showError} />
       </div>
     </div>

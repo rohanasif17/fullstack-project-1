@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import ErrorMessage from './ErrorMessage';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 // Decorative asset imports (located in frontend/assets)
 import controllerImg from '../../assets/controller.png';
@@ -257,7 +257,7 @@ const RegisterForm = ({ setIsAuthenticated }) => {
           </button>
         </form>
         <p style={styles.linkText}>
-          Already have an account? <a href="/login" style={styles.link}>Login</a>
+          Already have an account? <Link to="/login" style={styles.link}>Login</Link>
         </p>
         <ErrorMessage message={errorMsg} visible={showError} />
       </div>
