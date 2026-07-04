@@ -34,7 +34,7 @@ api.interceptors.response.use(
       try {
         // Try to refresh the token
         const response = await axios.post(
-          'http://localhost:8000/api/v1/users/refresh-token',
+          'https://YOUR-BACKEND-URL.onrender.com/api/v1/users/refresh-token',
           {},
           { withCredentials: true }
         );
